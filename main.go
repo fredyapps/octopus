@@ -2,6 +2,7 @@ package main
 
 import (
 	"candidate"
+	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -20,10 +21,10 @@ func main() {
 	app := fiber.New()
 	app.Use(logger.New())
 
-	// app.Get("/", func(c *fiber.Ctx) error {
-	// 	fmt.Println(c.Body())
-	// 	return c.SendString("Welcone to my go_______ app-++-!")
-	// })
+	app.Get("/", func(c *fiber.Ctx) error {
+		fmt.Println(c.Body())
+		return c.SendString("Welcone to my go_______ app-++-!")
+	})
 
 	setupRoutes(app)
 
