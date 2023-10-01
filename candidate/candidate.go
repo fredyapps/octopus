@@ -1,28 +1,46 @@
-package octopus
+package candidate
 
 import (
 	"fmt"
+	"octopus/config"
+	"octopus/models"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func GetCandidates(c *fiber.Ctx) {
+var err error
 
-	// Using var keyword
-	var my_value_1 string
-	my_value_1 = "GeeksforGeeks"
-	fmt.Println(my_value_1)
-	c.SendString("Hello, World 👋!")
+func GetCandidate(c *fiber.Ctx) error {
+	return c.SendString("Single Candidate")
 }
 
-func GetCandidate(c *fiber.Ctx) {
-	c.SendString("Single Candidate")
+func NewCandidate(c *fiber.Ctx) error {
+
+	//var db
+	//var MYDB *sql.DB
+	//fmt.Println(c.Context())
+
+	candidate := new(models.Candidate)
+
+	if err := c.BodyParser(candidate); err != nil {
+		fmt.Println(err)
+		return c.Status(503).Send([]byte(err.Error()))
+
+	}
+
+	//config.Database.Create(&candidate)
+	//fmt.Println(candidate)
+	config.Connect()
+	config.Insert_candidate()
+
+	return c.Status(201).JSON(candidate)
+
 }
 
-func NewCandidate(c *fiber.Ctx) {
-	c.SendString("New Candidate")
+func DeleteCandidate(c *fiber.Ctx) error {
+	return c.SendString("Delete Candidate")
 }
 
-func DeleteCandidate(c *fiber.Ctx) {
-	c.SendString("Delete Candidate")
-}
+// npm install -g nodemon
+// sudo npm install -g nodemon
+// nodemon --watch './**/*.go' --signal SIGTERM --exec 'go' run main.go
