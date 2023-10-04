@@ -288,7 +288,7 @@ func Select_controls_per_domain(domain string) []models.SCFcontrol {
 
 	var controls []models.SCFcontrol
 
-	q := "SELECT  uuid, scf_control ,scf_domain , scf_ref , control_question FROM `SCFcontrols` WHERE  scf_control ='" + domain + "'"
+	q := "SELECT  uuid, scf_control ,scf_domain , scf_ref , control_question FROM `SCFcontrols` WHERE  scf_domain ='" + domain + "'"
 	db, err := sql.Open("mysql", dsn)
 
 	if err != nil {
@@ -389,7 +389,7 @@ func Select_controls_with_details_per_domain(domain string) []models.SCFcontrol 
 
 	var controls []models.SCFcontrol
 
-	q := "SELECT  uuid, scf_control ,scf_domain , scf_ref , control_question FROM `SCFcontrols` WHERE  scf_control ='" + domain + "'"
+	q := "SELECT  uuid, scf_control ,scf_domain , scf_ref , control_question FROM `SCFcontrols` WHERE  scf_domain ='" + domain + "'"
 	db, err := sql.Open("mysql", dsn)
 
 	if err != nil {
