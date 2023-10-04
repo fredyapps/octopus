@@ -167,11 +167,11 @@ func Insert_control(SCFctrl models.SCFcontrol) {
 	query := "INSERT INTO `SCFcontrols` (`uuid`, `scf_control`, `scf_domain`,`scf_ref`,`control_question`) VALUES (?, ?, ?, ?, ?)"
 
 	insertResult, err := db.ExecContext(context.Background(), query, SCFctrl.Uuid, SCFctrl.Scf_control, SCFctrl.Scf_domain, SCFctrl.Scf_ref, SCFctrl.Control_question)
-	fmt.Println("================ Error  connector line 88 =================")
+	//fmt.Println("================ Error  connector line 88 =================")
 	fmt.Println(insertResult)
 
 	if err != nil {
-		fmt.Println("================ Error  connector line 91 =================")
+		//fmt.Println("================ Error  connector line 91 =================")
 		log.Fatalf("impossible insert Domain: %s", err)
 	}
 
@@ -186,11 +186,11 @@ func Insert_control_details(ctrlDet models.SCFcontrolDetail) {
 	query := "INSERT INTO `SCFcontrolDetails` (`control_uuid`, `control_property`, `control_property_value`) VALUES (?, ?, ?)"
 
 	insertResult, err := db.ExecContext(context.Background(), query, ctrlDet.Control_uuid, ctrlDet.Control_property, ctrlDet.Control_property_value)
-	fmt.Println("================ Error  connector line 88 =================")
+	//fmt.Println("================ Error  connector line 88 =================")
 	fmt.Println(insertResult)
 
 	if err != nil {
-		fmt.Println("================ Error  connector line 91 =================")
+		//fmt.Println("================ Error  connector line 91 =================")
 		log.Fatalf("impossible insert Domain: %s", err)
 	}
 

@@ -29,7 +29,7 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/api/v1/segments", handlers.PrintingSegment)
 
 	//testing endpoint
-	//app.Post("/api/v1/testingportion", handlers.TestingPortion2)
+	app.Get("/api/v1/testingportion", handlers.TestingPortion2)
 
 	//tariff plans endpoint
 	app.Get("/api/v1/tariffplans", handlers.ListPlans)

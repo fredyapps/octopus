@@ -12,6 +12,15 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+func convType(v interface{}) interface{} {
+
+	aaaa := v.([]interface{})
+
+	fmt.Println(aaaa[0])
+
+	return aaaa[0]
+}
+
 func TestingPortion(c *fiber.Ctx) error {
 	fmt.Println("====================printing c body================")
 	fmt.Println()
@@ -38,8 +47,8 @@ func TestingPortion(c *fiber.Ctx) error {
 		var scfcontrol models.SCFcontrol
 		scfcontrol.Uuid = fmt.Sprintf("%v", result[i]["UUID"])
 		scfcontrol.Scf_control = fmt.Sprintf("%v", result[i]["SCF Domain"])
-		scfcontrol.Scf_domain = fmt.Sprintf("%v", result[i]["SCF Control"])
-		scfcontrol.Control_question = fmt.Sprintf("%v", result[i]["SCF Control Question"])
+		scfcontrol.Scf_domain = convType(result[i]["SCF Control"]).(string)
+		scfcontrol.Control_question = convType(result[i]["SCF Control Question"]).(string)
 		scfcontrol.Scf_ref = fmt.Sprintf("%v", result[i]["SCF #"])
 		fmt.Println(scfcontrol)
 		config.Insert_control(scfcontrol)
@@ -76,30 +85,28 @@ func TestingPortion2(c *fiber.Ctx) error {
 	// Unmarshal or Decode the JSON to the interface.
 	json.Unmarshal([]byte(byteValue), &result)
 
-	fmt.Println("====================Printing type of data in file processed ================")
-	fmt.Println(reflect.TypeOf(result))
-
 	config.Connect()
 
 	for i := 0; i < len(result); i++ {
-		fmt.Println("====================looping through json result variable ================")
+		//for i := 0; i < 2; i++ {
 
 		var scfcontrol models.SCFcontrol
+
 		scfcontrol.Uuid = fmt.Sprintf("%v", result[i]["UUID"])
-		scfcontrol.Scf_control = fmt.Sprintf("%v", result[i]["SCF Domain"])
-		scfcontrol.Scf_domain = fmt.Sprintf("%v", result[i]["SCF Control"])
-		scfcontrol.Control_question = fmt.Sprintf("%v", result[i]["SCF Control Question"])
+		scfcontrol.Scf_control = fmt.Sprintf("%v", convType(result[i]["SCF Control"]))
+		scfcontrol.Scf_domain = fmt.Sprintf("%v", result[i]["SCF Domain"])
+		scfcontrol.Control_question = fmt.Sprintf("%v", convType(result[i]["SCF Control Question"]))
 		scfcontrol.Scf_ref = fmt.Sprintf("%v", result[i]["SCF #"])
-		fmt.Println(scfcontrol)
+		//fmt.Println(scfcontrol)
 		config.Insert_control(scfcontrol)
 
 		for index, element := range result[i] {
-			fmt.Println("====================printing control details ================")
+			//fmt.Println("====================printing control details ================")
 			var scfcontroldetail models.SCFcontrolDetail
 			scfcontroldetail.Control_uuid = fmt.Sprintf("%v", result[i]["UUID"])
 			scfcontroldetail.Control_property = index
 			scfcontroldetail.Control_property_value = fmt.Sprintf("%v", element)
-			fmt.Println(scfcontroldetail)
+			//fmt.Println(scfcontroldetail)
 			config.Insert_control_details(scfcontroldetail)
 
 		}
