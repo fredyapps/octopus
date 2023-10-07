@@ -30,6 +30,13 @@ func GetBaseControlsPerDom(c *fiber.Ctx) error {
 	return c.Status(200).JSON(config.Select_controls_with_details_per_domain(result["domain"]))
 }
 
+func GetBaseControlsWithDetails(c *fiber.Ctx) error {
+	// Using var keyword
+
+	config.Connect()
+	return c.Status(200).JSON(config.Select_all_controls_with_details())
+}
+
 func GetControlDetails(c *fiber.Ctx) error {
 	// Using var keyword
 

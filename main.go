@@ -42,8 +42,11 @@ func setupRoutes(app *fiber.App) {
 
 	//SCF Base Controls routes
 	app.Get("/api/v1/BaseControls", handlers.GetBaseControls)
+	app.Get("/api/v1/BaseControlsWithDetails", handlers.GetBaseControlsWithDetails)
 	app.Post("/api/v1/BaseControlsPerDomain", handlers.GetBaseControlsPerDom)
 	app.Post("/api/v1/ControlDetails", handlers.GetControlDetails)
+
+	//
 }
 
 func main() {

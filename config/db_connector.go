@@ -419,6 +419,40 @@ func Select_controls_with_details_per_domain(domain string) []models.SCFcontrol 
 
 }
 
+func Select_all_controls_with_details() []models.SCFcontrol {
+
+	var controls []models.SCFcontrol
+
+	q := "SELECT  uuid, scf_control ,scf_domain , scf_ref , control_question FROM `SCFcontrols`"
+	db, err := sql.Open("mysql", dsn)
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	defer db.Close()
+
+	results, err := db.Query(q)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	for results.Next() {
+
+		var control models.SCFcontrol
+		err = results.Scan(&control.Uuid, &control.Scf_control, &control.Scf_domain, &control.Scf_ref, &control.Control_question)
+		if err != nil {
+			panic(err.Error())
+		}
+		control.Control_details = Select_control_details(control.Uuid)
+		controls = append(controls, control)
+
+	}
+	defer results.Close()
+
+	return controls
+
+}
+
 func Select_department_per_client(companyID string) []models.Department {
 
 	var dpmts []models.Department
@@ -486,3 +520,8 @@ func Select_users_per_department(companyID string, department string) []models.O
 	return users
 
 }
+
+// SELECT SCFcontrols.uuid, SCFcontrols.scf_control, SCFcontrols.scf_domain, SCFcontrolDetails.control_property,SCFcontrolDetails.control_property_value
+// FROM SCFcontrols
+// LEFT JOIN SCFcontrolDetails
+// ON SCFcontrols.uuid = SCFcontrolDetails.control_uuid;
