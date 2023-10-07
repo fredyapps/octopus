@@ -37,3 +37,25 @@ func RegisterClient(c *fiber.Ctx) error {
 	return c.Status(200).JSON(clt)
 
 }
+
+func GetDepartmentsByCompanyID(c *fiber.Ctx) error {
+
+	var req map[string]string
+
+	// Unmarshal or Decode the JSON to the interface.
+	json.Unmarshal([]byte(c.Body()), &req)
+	//Select_department_per_client
+
+	return c.Status(200).JSON(config.Select_department_per_client(req["company"]))
+}
+
+func GetUsersByDepartment(c *fiber.Ctx) error {
+
+	var req map[string]string
+
+	// Unmarshal or Decode the JSON to the interface.
+	json.Unmarshal([]byte(c.Body()), &req)
+	//Select_department_per_client
+
+	return c.Status(200).JSON(config.Select_users_per_department(req["company"], req["department"]))
+}

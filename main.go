@@ -37,6 +37,8 @@ func setupRoutes(app *fiber.App) {
 	//users and clients endpoint
 	app.Post("/api/v1/clients", handlers.RegisterClient)
 	app.Post("/api/v1/users", handlers.GetUsersByCompanyID)
+	app.Post("/api/v1/departments", handlers.GetDepartmentsByCompanyID)
+	app.Post("/api/v1/departments/users", handlers.GetUsersByDepartment)
 
 	//SCF Base Controls routes
 	app.Get("/api/v1/BaseControls", handlers.GetBaseControls)

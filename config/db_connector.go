@@ -418,3 +418,71 @@ func Select_controls_with_details_per_domain(domain string) []models.SCFcontrol 
 	return controls
 
 }
+
+func Select_department_per_client(companyID string) []models.Department {
+
+	var dpmts []models.Department
+
+	q := "SELECT  name, companyID FROM `departments` WHERE  companyID ='" + companyID + "'"
+	db, err := sql.Open("mysql", dsn)
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	defer db.Close()
+
+	results, err := db.Query(q)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	for results.Next() {
+
+		var dpmt models.Department
+		err = results.Scan(&dpmt.Name, &dpmt.CompanyID)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		dpmts = append(dpmts, dpmt)
+
+	}
+	defer results.Close()
+
+	return dpmts
+
+}
+
+func Select_users_per_department(companyID string, department string) []models.OctopusUser {
+
+	var users []models.OctopusUser
+
+	q := "SELECT  firstname, lastname, email ,Department, position, user_role,on_leave FROM `Users` WHERE  company_id ='" + companyID + "' AND Department = '" + department + "'"
+	db, err := sql.Open("mysql", dsn)
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	defer db.Close()
+
+	results, err := db.Query(q)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	for results.Next() {
+
+		var user models.OctopusUser
+		err = results.Scan(&user.Firstname, &user.Lastname, &user.Email, &user.Department, &user.Position, &user.User_role, &user.On_leave)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		users = append(users, user)
+
+	}
+	defer results.Close()
+
+	return users
+
+}
