@@ -521,6 +521,40 @@ func Select_users_per_department(companyID string, department string) []models.O
 
 }
 
+func Insert_evidence_request(evReq *models.EvidenceRequest) {
+
+	db, err := sql.Open("mysql", dsn)
+	query := "INSERT INTO `evidenceRequests` (`req_reference`, `req_owner`, `req_assessor`,`req_reviewer`,`req_status`,`contributors`,`company_id`) VALUES (?, ?, ?, ?, ?, ?, ?)"
+
+	insertResult, err := db.ExecContext(context.Background(), query, &evReq.Req_reference, &evReq.Req_owner, &evReq.Req_assessor, &evReq.Req_reviewer, &evReq.Req_status, &evReq.Contributors, &evReq.Company_id)
+	fmt.Println("================ Error  connector line 88 =================")
+	fmt.Println(insertResult)
+	if err != nil {
+		fmt.Println("================ Error  connector line 91 =================")
+		log.Fatalf("impossible insert Framework: %s", err)
+	}
+
+	defer db.Close()
+
+}
+
+func Insert_deployed_control(reqref string, uuid string) {
+
+	db, err := sql.Open("mysql", dsn)
+	query := "INSERT INTO `deployedControls` (`evidenceReq_ref`, `control_uuid`) VALUES ( ?, ?)"
+
+	insertResult, err := db.ExecContext(context.Background(), query, &reqref, &uuid)
+	fmt.Println("================ Error  connector line 88 =================")
+	fmt.Println(insertResult)
+	if err != nil {
+		fmt.Println("================ Error  connector line 91 =================")
+		log.Fatalf("impossible insert Framework: %s", err)
+	}
+
+	defer db.Close()
+
+}
+
 // SELECT SCFcontrols.uuid, SCFcontrols.scf_control, SCFcontrols.scf_domain, SCFcontrolDetails.control_property,SCFcontrolDetails.control_property_value
 // FROM SCFcontrols
 // LEFT JOIN SCFcontrolDetails
