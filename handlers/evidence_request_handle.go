@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"octopus/config"
@@ -35,6 +36,26 @@ func DeployControls(c *fiber.Ctx) error {
 	rep.RESPONSEMESSAGE = "Controls successfully deployed with evidence request!"
 
 	return c.Status(200).JSON(rep)
+}
+
+func GetEvidenceRequests(c *fiber.Ctx) error {
+
+	var req map[string]string
+
+	// Unmarshal or Decode the JSON to the interface.
+	json.Unmarshal([]byte(c.Body()), &req)
+
+	return c.Status(200).JSON(config.Select_evidence_requests(req["company"]))
+}
+
+func GetEvidenceRequestControls(c *fiber.Ctx) error {
+
+	var req map[string]string
+
+	// Unmarshal or Decode the JSON to the interface.
+	json.Unmarshal([]byte(c.Body()), &req)
+
+	return c.Status(200).JSON(config.Select_evidence_request_controls(req["reference"]))
 }
 
 func generateRandomString(length int) string {

@@ -46,6 +46,9 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/api/v1/BaseControlsPerDomain", handlers.GetBaseControlsPerDom)
 	app.Post("/api/v1/ControlDetails", handlers.GetControlDetails)
 	app.Post("/api/v1/DeployControls", handlers.DeployControls)
+	app.Post("/api/v1/GetEvidenceRequests", handlers.GetEvidenceRequests)
+	app.Post("/api/v1/GetEvidenceRequests", handlers.GetEvidenceRequests)
+	app.Post("/api/v1/GetEvidenceRequestControls", handlers.GetEvidenceRequestControls)
 	//
 
 	//

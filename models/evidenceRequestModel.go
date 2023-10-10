@@ -1,11 +1,7 @@
 package models
 
-import (
-	"gorm.io/gorm"
-)
-
 type EvidenceRequest struct {
-	gorm.Model
+	//gorm.Model
 	Id_request    int         `json:"id_request"`
 	Req_reference string      `json:"req_reference"`
 	Req_owner     string      `json:"req_owner"`

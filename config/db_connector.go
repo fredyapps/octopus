@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"octopus/models"
+	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
 
@@ -15,6 +16,9 @@ import (
 // Connect to the database
 var Database *gorm.DB
 var err error
+
+//var dsn string = "root:@tcp(127.0.0.1:3306)/octopus"
+
 var dsn string = "root:Mathapelo@2030@tcp(127.0.0.1:3306)/octopus"
 
 // var db *sql.DB
@@ -535,6 +539,76 @@ func Insert_evidence_request(evReq *models.EvidenceRequest) {
 	}
 
 	defer db.Close()
+
+}
+
+func Select_evidence_requests(companyID string) []models.EvidenceRequest {
+
+	var evidreqs []models.EvidenceRequest
+
+	q := "SELECT  req_reference,req_owner,req_assessor,req_reviewer,req_status,contributors FROM `evidenceRequests` WHERE  company_id ='" + companyID + "'"
+	db, err := sql.Open("mysql", dsn)
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	defer db.Close()
+
+	results, err := db.Query(q)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	for results.Next() {
+
+		var evidreq models.EvidenceRequest
+		var contributors string
+		err = results.Scan(&evidreq.Req_reference, &evidreq.Req_owner, &evidreq.Req_assessor, &evidreq.Req_reviewer, &evidreq.Req_status, &contributors)
+		evidreq.Contributors = strings.Fields(contributors)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		evidreqs = append(evidreqs, evidreq)
+
+	}
+	defer results.Close()
+
+	return evidreqs
+
+}
+
+func Select_evidence_request_controls(reference string) []models.SCFcontrol {
+
+	var controls []models.SCFcontrol
+
+	q := "SELECT   SCFcontrols.uuid, SCFcontrols.scf_control ,SCFcontrols.scf_domain , SCFcontrols.scf_ref , SCFcontrols.control_question FROM `SCFcontrols` LEFT JOIN `deployedControls` ON deployedControls.control_uuid = SCFcontrols.uuid WHERE  deployedControls.evidenceReq_ref ='" + reference + "' AND deployedControls.control_uuid = SCFcontrols.uuid"
+	db, err := sql.Open("mysql", dsn)
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	defer db.Close()
+
+	results, err := db.Query(q)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	for results.Next() {
+
+		var control models.SCFcontrol
+		err = results.Scan(&control.Uuid, &control.Scf_control, &control.Scf_domain, &control.Scf_ref, &control.Control_question)
+		if err != nil {
+			panic(err.Error())
+		}
+		control.Control_details = Select_control_details(control.Uuid)
+		controls = append(controls, control)
+
+	}
+	defer results.Close()
+
+	return controls
 
 }
 
