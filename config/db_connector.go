@@ -260,6 +260,8 @@ func Select_controls() []models.SCFcontrol {
 	var controls []models.SCFcontrol
 
 	q := "SELECT  uuid, scf_control ,scf_domain , scf_ref , control_question FROM `SCFcontrols`"
+
+	//
 	db, err := sql.Open("mysql", dsn)
 
 	if err != nil {
@@ -356,33 +358,28 @@ func Select_users_per_client(comp_id string) []models.OctopusUser {
 
 }
 
+//SELECT  uuid, scf_control ,scf_domain , scf_ref , control_question,(SELECT control_property , control_property_value  FROM `SCFcontrolDetails` WHERE  control_uuid = SCFcontrols.uuid) as control_details FROM `SCFcontrols`
+
 func Select_control_details(uuid string) []models.SCFcontrolDetail {
 
 	var ctrl_details []models.SCFcontrolDetail
-	q := "SELECT  id_control_detail, control_uuid ,control_property , control_property_value  FROM `SCFcontrolDetails` WHERE  control_uuid ='" + uuid + "'"
-	//q := "SELECT  *  FROM `SCFcontrolDetails` WHERE  control_uuid ='" + uuid + "'"
+	q := "SELECT control_property , control_property_value  FROM `SCFcontrolDetails` WHERE  control_uuid ='" + uuid + "'"
 	db, err := sql.Open("mysql", dsn)
 
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	defer db.Close()
-
 	results, err := db.Query(q)
+
+	defer db.Close()
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-
 	for results.Next() {
 
 		var ctrl_detail models.SCFcontrolDetail
-		err = results.Scan(&ctrl_detail.Id_control_detail, &ctrl_detail.Control_uuid, &ctrl_detail.Control_property, &ctrl_detail.Control_property_value)
-		//err = results.Scan(&ctrl_detail)
-		if err != nil {
-			panic(err.Error())
-		}
+		err = results.Scan(&ctrl_detail.Control_property, &ctrl_detail.Control_property_value)
+
 		ctrl_details = append(ctrl_details, ctrl_detail)
 	}
+
 	defer results.Close()
 
 	return ctrl_details
