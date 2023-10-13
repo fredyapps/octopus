@@ -49,3 +49,12 @@ func GetControlDetails(c *fiber.Ctx) error {
 	config.Connect()
 	return c.Status(200).JSON(config.Select_control_details(result["uuid"]))
 }
+
+func GetControlsWithDetailsPerFilter(c *fiber.Ctx) error {
+	// Using var keyword
+	//c.
+	config.Connect()
+	return c.Status(200).JSON(config.Select_control_join_details(c.Params("word")))
+}
+
+//Select_control_join_details

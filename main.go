@@ -50,8 +50,8 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/api/v1/GetEvidenceRequests", handlers.GetEvidenceRequests)
 	app.Post("/api/v1/GetEvidenceRequestControls", handlers.GetEvidenceRequestControls)
 	//
-
-	//
+	app.Get("/api/v1/GetControlsWithDetailsPerFilter/:word", handlers.GetControlsWithDetailsPerFilter)
+	//MigrateControlDetails
 }
 
 func main() {

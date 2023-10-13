@@ -363,7 +363,7 @@ func Select_users_per_client(comp_id string) []models.OctopusUser {
 func Select_control_details(uuid string) []models.SCFcontrolDetail {
 
 	var ctrl_details []models.SCFcontrolDetail
-	q := "SELECT control_property , control_property_value  FROM `SCFcontrolDetails` WHERE  control_uuid ='" + uuid + "'"
+	q := "SELECT control_uuid ,control_property , control_property_value  FROM `SCFcontrolDetails` WHERE  control_uuid ='" + uuid + "'"
 	db, err := sql.Open("mysql", dsn)
 
 	results, err := db.Query(q)
@@ -375,7 +375,33 @@ func Select_control_details(uuid string) []models.SCFcontrolDetail {
 	for results.Next() {
 
 		var ctrl_detail models.SCFcontrolDetail
-		err = results.Scan(&ctrl_detail.Control_property, &ctrl_detail.Control_property_value)
+		err = results.Scan(&ctrl_detail.Control_uuid, &ctrl_detail.Control_property, &ctrl_detail.Control_property_value)
+
+		ctrl_details = append(ctrl_details, ctrl_detail)
+	}
+
+	defer results.Close()
+
+	return ctrl_details
+
+}
+
+func Select_control_details_with_filter(uuid string, word string) []models.SCFcontrolDetail {
+
+	var ctrl_details []models.SCFcontrolDetail
+	q := "SELECT control_uuid ,control_property , control_property_value  FROM `SCFcontrolDetails` WHERE  control_uuid ='" + uuid + "' AND control_property LIKE '%" + word + "%'"
+	db, err := sql.Open("mysql", dsn)
+
+	results, err := db.Query(q)
+
+	defer db.Close()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	for results.Next() {
+
+		var ctrl_detail models.SCFcontrolDetail
+		err = results.Scan(&ctrl_detail.Control_uuid, &ctrl_detail.Control_property, &ctrl_detail.Control_property_value)
 
 		ctrl_details = append(ctrl_details, ctrl_detail)
 	}
@@ -626,7 +652,40 @@ func Insert_deployed_control(reqref string, uuid string) {
 
 }
 
-// SELECT SCFcontrols.uuid, SCFcontrols.scf_control, SCFcontrols.scf_domain, SCFcontrolDetails.control_property,SCFcontrolDetails.control_property_value
-// FROM SCFcontrols
-// LEFT JOIN SCFcontrolDetails
-// ON SCFcontrols.uuid = SCFcontrolDetails.control_uuid;
+func Select_control_join_details(search_word string) []models.SCFcontrol {
+
+	var controls []models.SCFcontrol
+	q := "SELECT DISTINCT SCFcontrols.uuid, SCFcontrols.scf_control, SCFcontrols.scf_domain, SCFcontrols.scf_ref, SCFcontrols.control_question FROM SCFcontrols INNER JOIN SCFcontrolDetails ON SCFcontrols.uuid = SCFcontrolDetails.control_uuid WHERE SCFcontrolDetails.control_property LIKE '%" + search_word + "%'"
+
+	db, err := sql.Open("mysql", dsn)
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	defer db.Close()
+
+	results, err := db.Query(q)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	for results.Next() {
+
+		var control models.SCFcontrol
+		err = results.Scan(&control.Uuid, &control.Scf_control, &control.Scf_domain, &control.Scf_ref, &control.Control_question)
+		if err != nil {
+			panic(err.Error())
+		}
+		control.Control_details = Select_control_details_with_filter(control.Uuid, search_word)
+		controls = append(controls, control)
+
+	}
+	defer results.Close()
+
+	return controls
+
+	///
+
+}
+
+//SELECT SCFcontrols.uuid, SCFcontrols.scf_control, SCFcontrols.scf_domain FROM SCFcontrols JOIN SCFcontrolDetails ON SCFcontrols.uuid = SCFcontrolDetails.control_uuid WHERE SCFcontrolDetails.control_property = 'ISO\n27001\nv2013'
