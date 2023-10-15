@@ -42,7 +42,6 @@ func setupRoutes(app *fiber.App) {
 
 	//SCF Base Controls routes
 	app.Get("/api/v1/BaseControls", handlers.GetBaseControls)
-	app.Get("/api/v1/BaseControlsWithDetails", handlers.GetBaseControlsWithDetails)
 	app.Post("/api/v1/BaseControlsPerDomain", handlers.GetBaseControlsPerDom)
 	app.Post("/api/v1/ControlDetails", handlers.GetControlDetails)
 	app.Post("/api/v1/DeployControls", handlers.DeployControls)
@@ -51,6 +50,7 @@ func setupRoutes(app *fiber.App) {
 	app.Post("/api/v1/GetEvidenceRequestControls", handlers.GetEvidenceRequestControls)
 	//
 	app.Get("/api/v1/GetControlsWithDetailsPerFilter/:word", handlers.GetControlsWithDetailsPerFilter)
+	app.Post("/api/v1/GetControlsPerFramework", handlers.GetControlsPerFramework)
 	//MigrateControlDetails
 }
 

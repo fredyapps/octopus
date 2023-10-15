@@ -9,12 +9,10 @@ import (
 	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
-
-	"gorm.io/gorm"
 )
 
 // Connect to the database
-var Database *gorm.DB
+// var Database *gorm.DB
 var err error
 
 //var dsn string = "root:@tcp(127.0.0.1:3306)/octopus"
@@ -29,9 +27,9 @@ func Connect() {
 	// Open the database.
 	db, err := sql.Open("mysql", dsn)
 
-	fmt.Println("================ Error  connector line 35 =================")
-	fmt.Println(db)
-	fmt.Println(db.Ping())
+	fmt.Println("================ printing the DB stats  line 31 =================")
+	fmt.Println(db.Stats())
+	//fmt.Println(db.Ping())
 
 	//log.Fatalf("impossible to create the connection: %s", err)
 
@@ -84,11 +82,10 @@ func Select_frameworks() []models.Framework {
 func Insert_framework(frmk *models.Framework) {
 
 	//=========================================== |||||||||||||| ============================================
-	//q := "INSERT INTO `Frameworks` (`name`, `reference`, `version`,`numb_controls`,`numb_layers`,`description`) VALUES ('Ananisallah', 'insertion', 'fredy@gmail.com', 'holla')"
 	db, err := sql.Open("mysql", dsn)
-	query := "INSERT INTO `Frameworks` (`name`, `reference`, `version`,`numb_controls`,`numb_layers`,`description`) VALUES (?, ?, ?, ?, ?, ?)"
+	query := "INSERT INTO `Frameworks` (`name`, `reference`, `version`,`description`) VALUES (?, ?, ?, ?, ?, ?)"
 
-	insertResult, err := db.ExecContext(context.Background(), query, frmk.Name, frmk.Reference, frmk.Version, frmk.Numb_controls, frmk.Numb_layers, frmk.Description)
+	insertResult, err := db.ExecContext(context.Background(), query, frmk.Name, frmk.Reference, frmk.Version, frmk.Description)
 	fmt.Println("================ Error  connector line 88 =================")
 	fmt.Println(insertResult)
 	if err != nil {
@@ -358,8 +355,6 @@ func Select_users_per_client(comp_id string) []models.OctopusUser {
 
 }
 
-//SELECT  uuid, scf_control ,scf_domain , scf_ref , control_question,(SELECT control_property , control_property_value  FROM `SCFcontrolDetails` WHERE  control_uuid = SCFcontrols.uuid) as control_details FROM `SCFcontrols`
-
 func Select_control_details(uuid string) []models.SCFcontrolDetail {
 
 	var ctrl_details []models.SCFcontrolDetail
@@ -446,11 +441,11 @@ func Select_controls_with_details_per_domain(domain string) []models.SCFcontrol 
 
 }
 
-func Select_all_controls_with_details() []models.SCFcontrol {
+func Select_all_controls_per_framework(framework string) []models.SCFcontrol {
 
 	var controls []models.SCFcontrol
 
-	q := "SELECT  uuid, scf_control ,scf_domain , scf_ref , control_question FROM `SCFcontrols`"
+	q := "SELECT SCFcontrols.uuid, SCFcontrols.scf_control, SCFcontrols.scf_domain,SCFcontrols.scf_ref,SCFcontrols.control_question,SCFcontrolDetails.control_property,SCFcontrolDetails.control_property_value FROM  SCFcontrols JOIN SCFcontrolDetails ON SCFcontrols.uuid = SCFcontrolDetails.control_uuid WHERE SCFcontrolDetails.control_property = '" + framework + "'"
 	db, err := sql.Open("mysql", dsn)
 
 	if err != nil {
@@ -459,6 +454,8 @@ func Select_all_controls_with_details() []models.SCFcontrol {
 	defer db.Close()
 
 	results, err := db.Query(q)
+
+	defer results.Close()
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -466,15 +463,13 @@ func Select_all_controls_with_details() []models.SCFcontrol {
 	for results.Next() {
 
 		var control models.SCFcontrol
-		err = results.Scan(&control.Uuid, &control.Scf_control, &control.Scf_domain, &control.Scf_ref, &control.Control_question)
+		err = results.Scan(&control.Uuid, &control.Scf_control, &control.Scf_domain, &control.Scf_ref, &control.Control_question, &control.Control_framework, &control.Mapping_values)
 		if err != nil {
 			panic(err.Error())
 		}
-		control.Control_details = Select_control_details(control.Uuid)
 		controls = append(controls, control)
 
 	}
-	defer results.Close()
 
 	return controls
 
@@ -689,3 +684,4 @@ func Select_control_join_details(search_word string) []models.SCFcontrol {
 }
 
 //SELECT SCFcontrols.uuid, SCFcontrols.scf_control, SCFcontrols.scf_domain FROM SCFcontrols JOIN SCFcontrolDetails ON SCFcontrols.uuid = SCFcontrolDetails.control_uuid WHERE SCFcontrolDetails.control_property = 'ISO\n27001\nv2013'
+//SELECT SCFcontrols.uuid, SCFcontrols.scf_control, SCFcontrols.scf_domain,SCFcontrolDetails.control_property AS Control_framework,SCFcontrolDetails.control_property_value AS Mapping_values FROM SCFcontrols JOIN SCFcontrolDetails ON SCFcontrols.uuid = SCFcontrolDetails.control_uuid WHERE SCFcontrolDetails.control_property = 'ISO\n27001\nv2013'

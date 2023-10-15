@@ -30,13 +30,6 @@ func GetBaseControlsPerDom(c *fiber.Ctx) error {
 	return c.Status(200).JSON(config.Select_controls_with_details_per_domain(result["domain"]))
 }
 
-func GetBaseControlsWithDetails(c *fiber.Ctx) error {
-	// Using var keyword
-
-	config.Connect()
-	return c.Status(200).JSON(config.Select_all_controls_with_details())
-}
-
 func GetControlDetails(c *fiber.Ctx) error {
 	// Using var keyword
 
@@ -57,4 +50,15 @@ func GetControlsWithDetailsPerFilter(c *fiber.Ctx) error {
 	return c.Status(200).JSON(config.Select_control_join_details(c.Params("word")))
 }
 
-//Select_control_join_details
+func GetControlsPerFramework(c *fiber.Ctx) error {
+	// Using var keyword
+	fmt.Println(reflect.TypeOf(c.Body()))
+	var result map[string]string
+
+	//marshal or Decode the JSON to the interface.
+	json.Unmarshal([]byte(c.Body()), &result)
+	config.Connect()
+	return c.Status(200).JSON(config.Select_all_controls_per_framework(result["framework"]))
+}
+
+//Select_all_controls_per_framework
