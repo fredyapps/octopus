@@ -19,7 +19,6 @@ var err error
 
 var dsn string = "root:Mathapelo@2030@tcp(127.0.0.1:3306)/octopus"
 
-// var db *sql.DB
 var insert sql.Result
 
 func Connect() {
@@ -69,7 +68,8 @@ func Select_frameworks() []models.Framework {
 		if err != nil {
 			panic(err.Error())
 		}
-		fmt.Println(framework)
+
+		framework.Number_of_controls = Select_control_count(framework.Reference)
 		frameworks = append(frameworks, framework)
 
 	}
@@ -681,6 +681,31 @@ func Select_control_join_details(search_word string) []models.SCFcontrol {
 
 	///
 
+}
+
+func Select_control_count(reference string) int {
+
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	defer db.Close()
+	// Query for a value based on a single row.
+	results, err := db.Query("SELECT COUNT(*) FROM SCFcontrols JOIN SCFcontrolDetails ON SCFcontrols.uuid = SCFcontrolDetails.control_uuid WHERE SCFcontrolDetails.control_property='" + reference + "'")
+	var control_count int
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	for results.Next() {
+		err = results.Scan(&control_count)
+		if err != nil {
+			panic(err.Error())
+		}
+		fmt.Println("================ Printing controls_count on 711 =================")
+		fmt.Println(control_count)
+	}
+	return control_count
 }
 
 //SELECT SCFcontrols.uuid, SCFcontrols.scf_control, SCFcontrols.scf_domain FROM SCFcontrols JOIN SCFcontrolDetails ON SCFcontrols.uuid = SCFcontrolDetails.control_uuid WHERE SCFcontrolDetails.control_property = 'ISO\n27001\nv2013'
