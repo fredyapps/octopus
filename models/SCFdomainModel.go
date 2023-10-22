@@ -7,19 +7,26 @@
 
 package models
 
-import (
-	"gorm.io/gorm"
-)
-
 type SCFDomain struct {
-	gorm.Model
-	Id_domain       int      `json:"id_domain"`
-	UUID            string   `json:"UUID"`
-	ID              int      `json:"#\u00a0"`
-	SCFDomain       string   `json:"SCF Domain"`
-	SCFIdentifier   string   `json:"SCF Identifier"`
-	SecurityPrivacy []string `json:"Security & Privacy by Design (S|P) Principles"`
-	PrincipleIntent string   `json:"Principle Intent"`
-	Date_created    string   `gorm:"-:all"`
-	Date_updated    string   `json:"Date_updated"`
+	//gorm.Model
+	//Id_domain       int      `json:"id_domain"`
+	//UUID            string   `json:"UUID"`
+	//ID            int    `json:"#\u00a0"`
+	SCFDomain     string `json:"SCF Domain"`
+	SCFIdentifier string `json:"SCF Identifier"`
+	Controls      interface{}
+	//SecurityPrivacy []string `json:"Security & Privacy by Design (S|P) Principles"`
+	//PrincipleIntent string   `json:"Principle Intent"`
+	//Date_created    string   `gorm:"-:all"`
+	//Date_updated    string   `json:"Date_updated"`
 }
+
+// let arr = Array('ISO\n27001\nv2013','PCIDSS\nv3.2','COBIT\n2019');
+// let stringed = JSON.stringify(arr);
+// console.log(JSON.stringify(arr));
+
+// let finalo = stringed.replace("[", "(");
+//  finalo = finalo.replace("]", ")");
+//  finalo = finalo.replaceAll('"', '\'');
+
+// console.log(finalo);

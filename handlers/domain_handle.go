@@ -116,25 +116,25 @@ func TestingPortion2(c *fiber.Ctx) error {
 	return c.Status(201).JSON(nil)
 }
 
-func InsertDomain(c *fiber.Ctx) error {
-	// Using var keyword
-	var dmn []*models.SCFDomain
-	_ = json.Unmarshal([]byte(c.Body()), &dmn)
-	// if err := c.BodyParser(dmn); err != nil {
-	// 	return err
-	// }
+// func InsertDomain(c *fiber.Ctx) error {
+// 	// Using var keyword
+// 	var dmn []*models.SCFDomain
+// 	_ = json.Unmarshal([]byte(c.Body()), &dmn)
+// 	// if err := c.BodyParser(dmn); err != nil {
+// 	// 	return err
+// 	// }
 
-	fmt.Println(dmn)
-	config.Connect()
+// 	fmt.Println(dmn)
+// 	config.Connect()
 
-	for index, element := range dmn {
-		config.Insert_domain(element)
-		fmt.Println(index)
-	}
-	//
+// 	for index, element := range dmn {
+// 		config.Insert_domain(element)
+// 		fmt.Println(index)
+// 	}
+// 	//
 
-	return c.Status(201).JSON(dmn)
-}
+// 	return c.Status(201).JSON(dmn)
+// }
 
 func PrintingSegment(c *fiber.Ctx) error {
 

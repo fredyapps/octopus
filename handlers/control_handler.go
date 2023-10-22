@@ -27,7 +27,7 @@ func GetBaseControlsPerDom(c *fiber.Ctx) error {
 	json.Unmarshal([]byte(c.Body()), &result)
 
 	config.Connect()
-	return c.Status(200).JSON(config.Select_controls_with_details_per_domain(result["domain"]))
+	return c.Status(200).JSON(config.Select_controls_with_details_per_domain(result["domain"], result["framework"]))
 }
 
 func GetControlDetails(c *fiber.Ctx) error {
@@ -59,6 +59,21 @@ func GetControlsPerFramework(c *fiber.Ctx) error {
 	json.Unmarshal([]byte(c.Body()), &result)
 	config.Connect()
 	return c.Status(200).JSON(config.Select_all_controls_per_framework(result["framework"]))
+}
+
+func GetDomainsFromFrameworks(c *fiber.Ctx) error {
+
+	fmt.Println(reflect.TypeOf(c.Body()))
+	var result map[string]string
+
+	json.Unmarshal([]byte(c.Body()), &result)
+	config.Connect()
+	fmt.Println("=============Printing the selected frameworks========")
+	fmt.Println(result["frameworks"])
+	return c.Status(200).JSON(config.Select_domains_of_selected_frameworks(result["frameworks"]))
+
+	//return c.Status(200).JSON("")
+
 }
 
 //Select_all_controls_per_framework

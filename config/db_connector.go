@@ -123,24 +123,24 @@ func Insert_candidate() {
 
 }
 
-func Insert_domain(dmn *models.SCFDomain) {
+// func Insert_domain(dmn *models.SCFDomain) {
 
-	//=========================================== |||||||||||||| ============================================
-	db, err := sql.Open("mysql", dsn)
-	query := "INSERT INTO `SCFDomains` (`UUID`, `ID`, `SCFDomain`,`SCFIdentifier`,`SecurityPrivacy`,`PrincipleIntent`) VALUES (?, ?, ?, ?, ?, ?)"
+// 	//=========================================== |||||||||||||| ============================================
+// 	db, err := sql.Open("mysql", dsn)
+// 	query := "INSERT INTO `SCFDomains` (`UUID`, `ID`, `SCFDomain`,`SCFIdentifier`,`SecurityPrivacy`,`PrincipleIntent`) VALUES (?, ?, ?, ?, ?, ?)"
 
-	insertResult, err := db.ExecContext(context.Background(), query, dmn.UUID, dmn.ID, dmn.SCFDomain, dmn.SCFIdentifier, dmn.SecurityPrivacy[0], dmn.PrincipleIntent)
-	fmt.Println("================ Error  connector line 88 =================")
-	fmt.Println(insertResult)
+// 	insertResult, err := db.ExecContext(context.Background(), query, dmn.UUID, dmn.ID, dmn.SCFDomain, dmn.SCFIdentifier, dmn.SecurityPrivacy[0], dmn.PrincipleIntent)
+// 	fmt.Println("================ Error  connector line 88 =================")
+// 	fmt.Println(insertResult)
 
-	if err != nil {
-		fmt.Println("================ Error  connector line 91 =================")
-		log.Fatalf("impossible insert Domain: %s", err)
-	}
+// 	if err != nil {
+// 		fmt.Println("================ Error  connector line 91 =================")
+// 		log.Fatalf("impossible insert Domain: %s", err)
+// 	}
 
-	defer db.Close()
+// 	defer db.Close()
 
-}
+// }
 
 func Insert_schema(fld models.Field) {
 
@@ -407,11 +407,12 @@ func Select_control_details_with_filter(uuid string, word string) []models.SCFco
 
 }
 
-func Select_controls_with_details_per_domain(domain string) []models.SCFcontrol {
+func Select_controls_with_details_per_domain(domain string, framework string) []models.SCFcontrol {
 
 	var controls []models.SCFcontrol
 
-	q := "SELECT  uuid, scf_control ,scf_domain , scf_ref , control_question FROM `SCFcontrols` WHERE  scf_domain ='" + domain + "'"
+	//q := "SELECT  uuid, scf_control ,scf_domain , scf_ref , control_question FROM `SCFcontrols` WHERE  scf_domain ='" + domain + "'"
+	q := "SELECT SCFcontrols.uuid, SCFcontrols.scf_control, SCFcontrols.scf_domain, SCFcontrols.scf_ref, SCFcontrols.control_question, SCFcontrolDetails.control_property,SCFcontrolDetails.control_property_value FROM SCFcontrols JOIN SCFcontrolDetails ON SCFcontrols.uuid = SCFcontrolDetails.control_uuid WHERE SCFcontrolDetails.control_property = '" + framework + "' AND SCFcontrols.scf_domain ='" + domain + "'"
 	db, err := sql.Open("mysql", dsn)
 
 	if err != nil {
@@ -427,11 +428,11 @@ func Select_controls_with_details_per_domain(domain string) []models.SCFcontrol 
 	for results.Next() {
 
 		var control models.SCFcontrol
-		err = results.Scan(&control.Uuid, &control.Scf_control, &control.Scf_domain, &control.Scf_ref, &control.Control_question)
+		err = results.Scan(&control.Uuid, &control.Scf_control, &control.Scf_domain, &control.Scf_ref, &control.Control_question, &control.Control_framework, &control.Mapping_values)
 		if err != nil {
 			panic(err.Error())
 		}
-		control.Control_details = Select_control_details(control.Uuid)
+		//control.Control_details = Select_control_details_with_filter(control.Uuid, framework)
 		controls = append(controls, control)
 
 	}
@@ -708,5 +709,82 @@ func Select_control_count(reference string) int {
 	return control_count
 }
 
+func Select_controls_from_selected_frameworks(frameworks string, domain string) []models.SCFcontrol {
+
+	var controls []models.SCFcontrol
+	q := "SELECT DISTINCT SCFcontrols.uuid, SCFcontrols.scf_control, SCFcontrols.scf_domain, SCFcontrols.scf_ref, SCFcontrols.control_question FROM SCFcontrols INNER JOIN SCFcontrolDetails ON SCFcontrols.uuid = SCFcontrolDetails.control_uuid WHERE SCFcontrolDetails.control_property IN " + frameworks + " AND SCFcontrols.scf_domain='" + domain + "'"
+
+	db, err := sql.Open("mysql", dsn)
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	defer db.Close()
+
+	results, err := db.Query(q)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	for results.Next() {
+
+		var control models.SCFcontrol
+		err = results.Scan(&control.Uuid, &control.Scf_control, &control.Scf_domain, &control.Scf_ref, &control.Control_question)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		controls = append(controls, control)
+
+	}
+	defer results.Close()
+
+	return controls
+
+}
+
+func Select_domains_of_selected_frameworks(frameworks string) []models.SCFDomain {
+
+	var domains []models.SCFDomain
+
+	q := "SELECT DISTINCT SCFDomains.SCFDomain, SCFDomains.SCFIdentifier FROM `SCFDomains` JOIN SCFcontrols ON SCFDomains.SCFDomain=SCFcontrols.scf_domain JOIN SCFcontrolDetails ON SCFcontrols.uuid=SCFcontrolDetails.control_uuid WHERE SCFcontrolDetails.control_property IN " + frameworks + ""
+	db, err := sql.Open("mysql", dsn)
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	defer db.Close()
+
+	results, err := db.Query(q)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	for results.Next() {
+
+		var domain models.SCFDomain
+		err = results.Scan(&domain.SCFDomain, &domain.SCFIdentifier)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		domain.Controls = Select_controls_from_selected_frameworks(frameworks, domain.SCFDomain)
+
+		domains = append(domains, domain)
+
+	}
+	defer results.Close()
+
+	return domains
+
+}
+
 //SELECT SCFcontrols.uuid, SCFcontrols.scf_control, SCFcontrols.scf_domain FROM SCFcontrols JOIN SCFcontrolDetails ON SCFcontrols.uuid = SCFcontrolDetails.control_uuid WHERE SCFcontrolDetails.control_property = 'ISO\n27001\nv2013'
 //SELECT SCFcontrols.uuid, SCFcontrols.scf_control, SCFcontrols.scf_domain,SCFcontrolDetails.control_property AS Control_framework,SCFcontrolDetails.control_property_value AS Mapping_values FROM SCFcontrols JOIN SCFcontrolDetails ON SCFcontrols.uuid = SCFcontrolDetails.control_uuid WHERE SCFcontrolDetails.control_property = 'ISO\n27001\nv2013'
+
+//SELECT DISTINCT SCFDomain FROM `SCFDomains` JOIN SCFcontrols ON SCFDomains.SCFDomain=SCFcontrols.scf_domain
+
+// SELECT DISTINCT SCFDomains.SCFDomain, SCFDomains.SCFIdentifier FROM `SCFDomains`
+// JOIN SCFcontrols ON SCFDomains.SCFDomain=SCFcontrols.scf_domain
+// JOIN SCFcontrolDetails ON SCFcontrols.uuid=SCFcontrolDetails.control_uuid
+// WHERE SCFcontrolDetails.control_property in ('ISO\n27001\nv2013','PCIDSS\nv3.2','COBIT\n2019')

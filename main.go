@@ -25,8 +25,9 @@ func setupRoutes(app *fiber.App) {
 	app.Delete("/api/v1/candidate/:id", candidate.DeleteCandidate)
 
 	//SCF Domains routes
-	app.Post("/api/v1/SCFDomains", handlers.InsertDomain)
+	//app.Post("/api/v1/SCFDomains", handlers.InsertDomain)
 	app.Post("/api/v1/segments", handlers.PrintingSegment)
+	app.Post("/api/v1/GetDomainsFromFrameworks", handlers.GetDomainsFromFrameworks)
 
 	//testing endpoint
 	app.Get("/api/v1/testingportion", handlers.TestingPortion2)
