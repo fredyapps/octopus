@@ -12,8 +12,8 @@ type SCFDomain struct {
 	//Id_domain       int      `json:"id_domain"`
 	//UUID            string   `json:"UUID"`
 	//ID            int    `json:"#\u00a0"`
-	SCFDomain     string `json:"SCF Domain"`
-	SCFIdentifier string `json:"SCF Identifier"`
+	SCFDomain     string
+	SCFIdentifier string
 	Controls      interface{}
 	//SecurityPrivacy []string `json:"Security & Privacy by Design (S|P) Principles"`
 	//PrincipleIntent string   `json:"Principle Intent"`
