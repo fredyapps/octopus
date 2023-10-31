@@ -9,6 +9,8 @@ import (
 	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 // Connect to the database
@@ -41,6 +43,39 @@ func Connect() {
 	fmt.Println("================ Trace connector line 45 =================")
 	//fmt.Println(db)
 	defer db.Close()
+
+}
+
+func Select_domains_of_selected_frameworks(frms []string) []models.SCFDomain {
+
+	//frms := []string{"PCIDSS\nv4.0", "CSA\nIoT SCF\nv2"}
+	var domains []models.SCFDomain
+	var the_domains []models.SCFDomain
+	// refer https://github.com/go-sql-driver/mysql#dsn-data-source-name for details
+	dsn := "root:@tcp(127.0.0.1:3306)/octopus?charset=utf8mb4&parseTime=True&loc=Local"
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	//var results []models.TariffPlan
+	//q := "SELECT DISTINCT SCFDomains.SCFDomain, SCFDomains.SCFIdentifier FROM `SCFDomains` JOIN SCFcontrols ON SCFDomains.SCFDomain=SCFcontrols.scf_domain JOIN SCFcontrolDetails ON SCFcontrols.uuid=SCFcontrolDetails.control_uuid WHERE SCFcontrolDetails.control_property IN " + frmss + ""
+
+	db.Table("SCFDomains").Distinct("SCFDomains.SCFDomain", "SCFDomains.SCFIdentifier").Joins("JOIN SCFcontrols ON SCFDomains.SCFDomain=SCFcontrols.scf_domain").Joins("JOIN SCFcontrolDetails ON SCFcontrols.uuid=SCFcontrolDetails.control_uuid").Where("SCFcontrolDetails.control_property IN ?", frms).Find(&domains)
+
+	for key, domain := range domains {
+
+		// using integ and spell as
+		// key and value of the map
+		fmt.Println(key, " = ", domain)
+		domain.Controls = Select_controls_from_selected_frameworks(frms, domain.SCFDomain)
+		the_domains = append(the_domains, domain)
+
+	}
+	//db.Where("name IN ?", []string{"jinzhu", "jinzhu 2"}).Find(&users)
+	//db.Table("tariff_plans").Find(&results)
+
+	return the_domains
 
 }
 
@@ -120,7 +155,6 @@ func Insert_candidate() {
 	defer insert.Close()
 
 	//==================================================================
-
 }
 
 // func Insert_domain(dmn *models.SCFDomain) {
@@ -204,7 +238,9 @@ func Select_tariff_plans() []models.TariffPlan {
 	var plans []models.TariffPlan
 
 	q := "SELECT  plan, reference  FROM `tariff_plans`"
+
 	db, err := sql.Open("mysql", dsn)
+	//db.Limit(3).Find(&plans)
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -709,7 +745,7 @@ func Select_control_count(reference string) int {
 	return control_count
 }
 
-func Select_controls_from_selected_frameworks(frameworks string, domain string) []models.SCFcontrol {
+func Select_controls_from_selected_frameworks_old(frameworks string, domain string) []models.SCFcontrol {
 
 	var controls []models.SCFcontrol
 	q := "SELECT DISTINCT SCFcontrols.uuid, SCFcontrols.scf_control, SCFcontrols.scf_domain, SCFcontrols.scf_ref, SCFcontrols.control_question FROM SCFcontrols INNER JOIN SCFcontrolDetails ON SCFcontrols.uuid = SCFcontrolDetails.control_uuid WHERE SCFcontrolDetails.control_property IN " + frameworks + " AND SCFcontrols.scf_domain='" + domain + "'"
@@ -743,12 +779,36 @@ func Select_controls_from_selected_frameworks(frameworks string, domain string) 
 
 }
 
-func Select_domains_of_selected_frameworks(frameworks string) []models.SCFDomain {
+func Select_controls_from_selected_frameworks(frms []string, domain string) []models.SCFcontrol {
+
+	//frms := []string{"PCIDSS\nv4.0", "CSA\nIoT SCF\nv2"}
+	var controls []models.SCFcontrol
+	// refer https://github.com/go-sql-driver/mysql#dsn-data-source-name for details
+	dsn := "root:@tcp(127.0.0.1:3306)/octopus?charset=utf8mb4&parseTime=True&loc=Local"
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	db.Table("SCFcontrols").Distinct("SCFcontrols.uuid", "SCFcontrols.scf_control", "SCFcontrols.scf_domain", "SCFcontrols.scf_ref", "SCFcontrols.control_question").Joins("INNER JOIN SCFcontrolDetails ON SCFcontrols.uuid = SCFcontrolDetails.control_uuid").Where("SCFcontrolDetails.control_property IN ? AND SCFcontrols.scf_domain= ?", frms, domain).Find(&controls)
+
+	return controls
+
+}
+
+func Select_domains_of_selected_frameworks_old(frameworks string) []models.SCFDomain {
 
 	var domains []models.SCFDomain
-
-	q := "SELECT DISTINCT SCFDomains.SCFDomain, SCFDomains.SCFIdentifier FROM `SCFDomains` JOIN SCFcontrols ON SCFDomains.SCFDomain=SCFcontrols.scf_domain JOIN SCFcontrolDetails ON SCFcontrols.uuid=SCFcontrolDetails.control_uuid WHERE SCFcontrolDetails.control_property IN " + frameworks + ""
+	frms := []string{"PCIDSS\\nv4.0", "CSA\\nIoT SCF\\nv2"}
+	frmss := fmt.Sprintf("%v", frms)
+	fmt.Println("==============printing the golang array in string==============")
+	fmt.Println(frmss)
+	q := "SELECT DISTINCT SCFDomains.SCFDomain, SCFDomains.SCFIdentifier FROM `SCFDomains` JOIN SCFcontrols ON SCFDomains.SCFDomain=SCFcontrols.scf_domain JOIN SCFcontrolDetails ON SCFcontrols.uuid=SCFcontrolDetails.control_uuid WHERE SCFcontrolDetails.control_property IN " + frmss + ""
 	db, err := sql.Open("mysql", dsn)
+
+	//stmt, err := db.Prepare("SELECT * FROM awesome_table WHERE id= $1 AND other_field = ANY($2)")
+	//stmt, err := db.Prepare("SELECT DISTINCT SCFDomains.SCFDomain, SCFDomains.SCFIdentifier FROM `SCFDomains` JOIN SCFcontrols ON SCFDomains.SCFDomain=SCFcontrols.scf_domain JOIN SCFcontrolDetails ON SCFcontrols.uuid=SCFcontrolDetails.control_uuid WHERE SCFcontrolDetails.control_property IN $1")
+	//rows, err := stmt.Query(10, pq.Array(frms))
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -768,7 +828,7 @@ func Select_domains_of_selected_frameworks(frameworks string) []models.SCFDomain
 			panic(err.Error())
 		}
 
-		domain.Controls = Select_controls_from_selected_frameworks(frameworks, domain.SCFDomain)
+		domain.Controls = Select_controls_from_selected_frameworks_old(frmss, domain.SCFDomain)
 
 		domains = append(domains, domain)
 

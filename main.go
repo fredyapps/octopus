@@ -34,6 +34,8 @@ func setupRoutes(app *fiber.App) {
 
 	//tariff plans endpoint
 	app.Get("/api/v1/tariffplans", handlers.ListPlans)
+	//app.Post("/api/v1/KPOKPO", handlers.KPOKPO)
+	//KPOKPO
 
 	//users and clients endpoint
 	app.Post("/api/v1/clients", handlers.RegisterClient)

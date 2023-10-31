@@ -64,7 +64,7 @@ func GetControlsPerFramework(c *fiber.Ctx) error {
 func GetDomainsFromFrameworks(c *fiber.Ctx) error {
 
 	fmt.Println(reflect.TypeOf(c.Body()))
-	var result map[string]string
+	var result map[string][]string
 
 	json.Unmarshal([]byte(c.Body()), &result)
 	config.Connect()
