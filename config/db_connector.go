@@ -19,7 +19,7 @@ var err error
 
 //var dsn string = "root:@tcp(127.0.0.1:3306)/octopus"
 
-var dsn string = "root:Mathapelo@2030@tcp(127.0.0.1:3306)/octopus"
+var dsn string = "root:@tcp(127.0.0.1:3306)/octopus"
 
 var insert sql.Result
 
@@ -52,7 +52,7 @@ func Select_domains_of_selected_frameworks(frms []string) []models.SCFDomain {
 	var domains []models.SCFDomain
 	var the_domains []models.SCFDomain
 	// refer https://github.com/go-sql-driver/mysql#dsn-data-source-name for details
-	dsn := "root:@tcp(127.0.0.1:3306)/octopus?charset=utf8mb4&parseTime=True&loc=Local"
+	//dsn := "root:Mathapelo@2030@tcp(127.0.0.1:3306)/octopus?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		fmt.Println(err.Error())
@@ -105,6 +105,7 @@ func Select_frameworks() []models.Framework {
 		}
 
 		framework.Number_of_controls = Select_control_count(framework.Reference)
+		framework.Number_of_domains = Select_domains_count(framework.Reference)
 		frameworks = append(frameworks, framework)
 
 	}
@@ -745,6 +746,31 @@ func Select_control_count(reference string) int {
 	return control_count
 }
 
+func Select_domains_count(reference string) int {
+
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	defer db.Close()
+	// Query for a value based on a single row.
+	results, err := db.Query("SELECT COUNT(DISTINCT scf_domain) FROM SCFcontrols JOIN SCFcontrolDetails ON SCFcontrols.uuid = SCFcontrolDetails.control_uuid WHERE SCFcontrolDetails.control_property='" + reference + "'")
+	var domain_count int
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	for results.Next() {
+		err = results.Scan(&domain_count)
+		if err != nil {
+			panic(err.Error())
+		}
+		fmt.Println("================ Printing controls_count on 768 =================")
+		fmt.Println(domain_count)
+	}
+	return domain_count
+}
+
 func Select_controls_from_selected_frameworks_old(frameworks string, domain string) []models.SCFcontrol {
 
 	var controls []models.SCFcontrol
@@ -784,7 +810,7 @@ func Select_controls_from_selected_frameworks(frms []string, domain string) []mo
 	//frms := []string{"PCIDSS\nv4.0", "CSA\nIoT SCF\nv2"}
 	var controls []models.SCFcontrol
 	// refer https://github.com/go-sql-driver/mysql#dsn-data-source-name for details
-	dsn := "root:@tcp(127.0.0.1:3306)/octopus?charset=utf8mb4&parseTime=True&loc=Local"
+	//dsn := "root:Mathapelo@2030@tcp(127.0.0.1:3306)/octopus?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		fmt.Println(err.Error())

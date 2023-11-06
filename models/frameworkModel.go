@@ -9,4 +9,5 @@ type Framework struct {
 	Version            string `json:"version"`
 	Description        string `json:"description"`
 	Number_of_controls int
+	Number_of_domains  int
 }
