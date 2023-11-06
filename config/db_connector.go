@@ -19,7 +19,7 @@ var err error
 
 //var dsn string = "root:@tcp(127.0.0.1:3306)/octopus"
 
-var dsn string = "root:@tcp(127.0.0.1:3306)/octopus"
+var dsn string = "root:Mathapelo@2030@tcp(127.0.0.1:3306)/octopus"
 
 var insert sql.Result
 
