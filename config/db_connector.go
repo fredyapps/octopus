@@ -816,7 +816,7 @@ func Select_controls_from_selected_frameworks(frms []string, domain string) []mo
 		fmt.Println(err.Error())
 	}
 
-	db.Table("SCFcontrols").Distinct("SCFcontrols.uuid", "SCFcontrols.scf_control", "SCFcontrols.scf_domain", "SCFcontrols.scf_ref", "SCFcontrols.control_question").Joins("INNER JOIN SCFcontrolDetails ON SCFcontrols.uuid = SCFcontrolDetails.control_uuid").Where("SCFcontrolDetails.control_property IN ? AND SCFcontrols.scf_domain= ?", frms, domain).Find(&controls)
+	db.Table("SCFcontrols").Distinct("SCFcontrols.uuid", "SCFcontrols.scf_control", "SCFcontrols.scf_domain", "SCFcontrols.scf_ref", "SCFcontrols.control_question", "SCFcontrolDetails.control_property AS Control_framework").Joins("INNER JOIN SCFcontrolDetails ON SCFcontrols.uuid = SCFcontrolDetails.control_uuid").Where("SCFcontrolDetails.control_property IN ? AND SCFcontrols.scf_domain= ?", frms, domain).Find(&controls)
 
 	return controls
 
