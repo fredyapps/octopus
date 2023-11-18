@@ -38,6 +38,40 @@ func DeployControls(c *fiber.Ctx) error {
 	return c.Status(200).JSON(rep)
 }
 
+func ConfirmScope(c *fiber.Ctx) error {
+
+	config.Connect()
+	f := new(models.ConfirmScope)
+
+	if err := c.BodyParser(f); err != nil {
+		return err
+	}
+
+	lib_controls := f.Controls.([]interface{})
+	for i := 0; i < len(lib_controls); i++ {
+		config.Insert_into_library(f, fmt.Sprintf("%v", lib_controls[i]))
+	}
+
+	rep := new(models.ResponsePayload)
+	rep.RESPONSECODE = 201
+	rep.RESPONSEMESSAGE = "Controls successfully added to your library!"
+
+	return c.Status(201).JSON(rep)
+
+}
+
+func GetLibrary(c *fiber.Ctx) error {
+
+	//List_controls_from_library
+
+	var req map[string]string
+
+	// Unmarshal or Decode the JSON to the interface.
+	json.Unmarshal([]byte(c.Body()), &req)
+
+	return c.Status(200).JSON(config.List_controls_from_library(req["company"]))
+}
+
 func GetEvidenceRequests(c *fiber.Ctx) error {
 
 	var req map[string]string

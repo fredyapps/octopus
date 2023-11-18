@@ -59,19 +59,3 @@ func GetUsersByDepartment(c *fiber.Ctx) error {
 
 	return c.Status(200).JSON(config.Select_users_per_department(req["company"], req["department"]))
 }
-
-// func KPOKPO(c *fiber.Ctx) error {
-
-// 	var result map[string][]string
-
-// 	// Unmarshal or Decode the JSON to the interface.
-// 	json.Unmarshal([]byte(c.Body()), &result)
-
-// 	fmt.Println(result["frameworks"])
-// 	fmt.Sprintf("%v", result["frameworks"])
-
-// 	return c.Status(200).JSON(config.Connect_via_gorm(result["frameworks"]))
-
-// }
-
-//Connect_via_gorm
