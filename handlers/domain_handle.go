@@ -10,6 +10,9 @@ import (
 	"reflect"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 func convType(v interface{}) interface{} {
@@ -113,6 +116,105 @@ func TestingPortion2(c *fiber.Ctx) error {
 
 	}
 
+	return c.Status(201).JSON(nil)
+}
+
+func Add_BOG_Controls(c *fiber.Ctx) error {
+
+	jsonFile, err := os.Open("BOG_FRAMEWORKS.JSON")
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	defer jsonFile.Close()
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+	var result []map[string]interface{}
+
+	// Unmarshal or Decode the JSON to the interface.
+	json.Unmarshal([]byte(byteValue), &result)
+	fmt.Println("====== printing BOG array size ============")
+	fmt.Println(len(result))
+	fmt.Println("====== done printing BOG array size ============")
+	var dsn string = "root:@tcp(127.0.0.1:3306)/octopus"
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	for i := 0; i < len(result); i++ {
+
+		//	contrs := config.Check_if_control_exist(fmt.Sprintf("%v", result[i]["SCF Control"]))
+		var controls []string
+
+		db.Select("SCFcontrols.uuid").Table("SCFcontrols").Where("SCFcontrols.scf_control = ? AND SCFcontrols.scf_ref = ?", fmt.Sprintf("%v", result[i]["SCF Control"]), fmt.Sprintf("%v", result[i]["SCF #"])).Find(&controls)
+		fmt.Println(controls)
+
+		if len(controls) == 0 {
+			var scfcontrol models.SCFcontrol
+			uuid := uuid.NewString()
+			scfcontrol.Uuid = uuid
+			scfcontrol.Scf_control = fmt.Sprintf("%v", result[i]["SCF Control"])
+			scfcontrol.Scf_domain = fmt.Sprintf("%v", result[i]["SCF Domain"])
+			scfcontrol.Control_question = fmt.Sprintf("%v", result[i]["SCF Control Question"])
+			scfcontrol.Scf_ref = fmt.Sprintf("%v", result[i]["SCF #"])
+			config.Insert_control(scfcontrol)
+
+			if result[i]["Bank of Ghana CISD"] != nil {
+				var scfcontroldetail models.SCFcontrolDetail
+				scfcontroldetail.Control_uuid = uuid
+				scfcontroldetail.Control_property = "Bank of Ghana CISD"
+				scfcontroldetail.Control_property_value = fmt.Sprintf("%v", result[i]["Bank of Ghana CISD"])
+				config.Insert_control_details(scfcontroldetail)
+			}
+			if result[i]["ISO\r\n27002\r\nv2022"] != nil {
+				var scfcontroldetail models.SCFcontrolDetail
+				scfcontroldetail.Control_uuid = uuid
+				scfcontroldetail.Control_property = "ISO\r\n27002\r\nv2022"
+				scfcontroldetail.Control_property_value = fmt.Sprintf("%v", result[i]["ISO\r\n27002\r\nv2022"])
+				config.Insert_control_details(scfcontroldetail)
+			}
+			if result[i]["CSA CII"] != nil {
+				var scfcontroldetail models.SCFcontrolDetail
+				scfcontroldetail.Control_uuid = uuid
+				scfcontroldetail.Control_property = "CSA CII"
+				scfcontroldetail.Control_property_value = fmt.Sprintf("%v", result[i]["CSA CII"])
+				config.Insert_control_details(scfcontroldetail)
+			}
+			if result[i]["Methods To Comply With SCF Controls"] != nil {
+				var scfcontroldetail models.SCFcontrolDetail
+				scfcontroldetail.Control_uuid = uuid
+				scfcontroldetail.Control_property = "Methods To Comply With SCF Controls"
+				scfcontroldetail.Control_property_value = fmt.Sprintf("%v", result[i]["Methods To Comply With SCF Controls"])
+				config.Insert_control_details3(scfcontroldetail)
+			}
+			if result[i]["Relative Control Weighting"] != nil {
+				var scfcontroldetail models.SCFcontrolDetail
+				scfcontroldetail.Control_uuid = uuid
+				scfcontroldetail.Control_property = "Relative Control Weighting"
+				scfcontroldetail.Control_property_value = fmt.Sprintf("%v", result[i]["Relative Control Weighting"])
+				config.Insert_control_details3(scfcontroldetail)
+			}
+
+		} else {
+
+			if result[i]["Bank of Ghana CISD"] != nil {
+				var scfcontroldetail models.SCFcontrolDetail
+				scfcontroldetail.Control_uuid = controls[0]
+				scfcontroldetail.Control_property = "Bank of Ghana CISD"
+				scfcontroldetail.Control_property_value = fmt.Sprintf("%v", result[i]["Bank of Ghana CISD"])
+				config.Insert_control_details(scfcontroldetail)
+			}
+
+			if result[i]["CSA CII"] != nil {
+				var scfcontroldetail models.SCFcontrolDetail
+				scfcontroldetail.Control_uuid = controls[0]
+				scfcontroldetail.Control_property = "CSA CII"
+				scfcontroldetail.Control_property_value = fmt.Sprintf("%v", result[i]["CSA CII"])
+				config.Insert_control_details(scfcontroldetail)
+			}
+
+		}
+	}
 	return c.Status(201).JSON(nil)
 }
 

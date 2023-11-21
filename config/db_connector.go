@@ -224,6 +224,38 @@ func Insert_control_details(ctrlDet models.SCFcontrolDetail) {
 
 }
 
+func Insert_control_details3(ctrlDet models.SCFcontrolDetail) {
+
+	//=========================================== |||||||||||||| ============================================
+	db, err := sql.Open("mysql", dsn)
+	query := "INSERT INTO `SCFcontrolDetails3` (`control_uuid`, `control_property`, `control_property_value`) VALUES (?, ?, ?)"
+
+	insertResult, err := db.ExecContext(context.Background(), query, ctrlDet.Control_uuid, ctrlDet.Control_property, ctrlDet.Control_property_value)
+	//fmt.Println("================ Error  connector line 88 =================")
+	fmt.Println(insertResult)
+
+	if err != nil {
+		//fmt.Println("================ Error  connector line 91 =================")
+		log.Fatalf("impossible insert Domain: %s", err)
+	}
+
+	defer db.Close()
+
+}
+
+func Check_if_control_exist(control string) []string {
+
+	var controls []string
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	db.Select("SCFcontrols.uuid").Table("SCFcontrols").Where("SCFcontrols.scf_control = ?", control).Find(&controls)
+
+	return controls
+
+}
+
 func Select_tariff_plans() []models.TariffPlan {
 
 	var plans []models.TariffPlan
