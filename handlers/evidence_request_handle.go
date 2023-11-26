@@ -27,6 +27,7 @@ func DeployControls(c *fiber.Ctx) error {
 	config.Insert_evidence_request(f)
 	//store deployed controls
 	dep_controls := f.Controls.([]interface{})
+
 	for i := 0; i < len(dep_controls); i++ {
 		config.Insert_deployed_control(f.Req_reference, fmt.Sprintf("%v", dep_controls[i]))
 	}
@@ -47,7 +48,18 @@ func ConfirmScope(c *fiber.Ctx) error {
 		return err
 	}
 
-	lib_controls := f.Controls.([]interface{})
+	lib_controls, ok := f.Controls.([]interface{})
+
+	if !ok {
+		// cant convert to string, now what???
+
+		rep := new(models.ResponsePayload)
+		rep.RESPONSECODE = 422
+		rep.RESPONSEMESSAGE = "Sorry, wrong request payload!"
+
+		return c.Status(422).JSON(rep)
+	}
+
 	for i := 0; i < len(lib_controls); i++ {
 		config.Insert_into_library(f, fmt.Sprintf("%v", lib_controls[i]))
 	}
