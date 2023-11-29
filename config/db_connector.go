@@ -69,7 +69,7 @@ func Select_domains_of_selected_frameworks(frms []string) []models.SCFDomain {
 		fmt.Println(err.Error())
 	}
 
-	db.Table("scfdomains").Distinct("scfdomains.SCFDomain", "scfdomains.SCFIdentifier").Joins("JOIN scfcontrols ON scfdomains.SCFDomain=scfcontrols.scf_domain").Joins("JOIN scfcontroldetails ON scfcontrols.uuid=scfcontroldetails.control_uuid").Where("scfcontrolDetails.control_property IN ?", frms).Find(&domains)
+	db.Table("scfdomains").Distinct("scfdomains.SCFDomain", "scfdomains.SCFIdentifier").Joins("JOIN scfcontrols ON scfdomains.SCFDomain=scfcontrols.scf_domain").Joins("JOIN scfcontroldetails ON scfcontrols.uuid=scfcontroldetails.control_uuid").Where("scfcontroldetails.control_property IN ?", frms).Find(&domains)
 
 	for key, domain := range domains {
 
@@ -449,7 +449,7 @@ func Select_controls_with_details_per_domain(domain string, framework string) []
 	var controls []models.SCFcontrol
 
 	//q := "SELECT  uuid, scf_control ,scf_domain , scf_ref , control_question FROM `SCFcontrols` WHERE  scf_domain ='" + domain + "'"
-	q := "SELECT scfcontrols.uuid, scfcontrols.scf_control, scfcontrols.scf_domain, scfcontrols.scf_ref, scfcontrols.control_question, scfcontroldetails.control_property,scfcontroldetails.control_property_value FROM scfcontrols JOIN scfcontroldetails ON scfcontrols.uuid = scfcontroldetails.control_uuid WHERE scfcontrolDetails.control_property = '" + framework + "' AND scfcontrols.scf_domain ='" + domain + "'"
+	q := "SELECT scfcontrols.uuid, scfcontrols.scf_control, scfcontrols.scf_domain, scfcontrols.scf_ref, scfcontrols.control_question, scfcontroldetails.control_property,scfcontroldetails.control_property_value FROM scfcontrols JOIN scfcontroldetails ON scfcontrols.uuid = scfcontroldetails.control_uuid WHERE scfcontroldetails.control_property = '" + framework + "' AND scfcontrols.scf_domain ='" + domain + "'"
 	db, err := sql.Open("mysql", dsn)
 
 	if err != nil {
@@ -711,13 +711,6 @@ func List_controls_from_library(company_id string) []models.SCFcontrol {
 	}
 	db.Distinct("scfcontrols.uuid").Select("scfcontrols.uuid", "scfcontrols.scf_control", "scfcontrols.scf_domain", "scfcontrols.scf_ref", "scfcontrols.control_question").Table("scfcontrols").Joins("JOIN controllibrary ON scfcontrols.uuid = controllibrary.control_uuid").Where("controllibrary.company_id = ?", company_id).Find(&controls)
 
-	// var frameworks []string
-	// for i := 0; i < len(controls); i++ {
-	// 	fmt.Println(i)
-	// 	db.Distinct("SCFcontrolDetails.control_property").Select("SCFcontrolDetails.control_property").Table("SCFcontrolDetails").Where("SCFcontrolDetails.control_property IN ?  AND  SCFcontrolDetails.control_uuid = ? ", frms, controls[i].Uuid).Find(&frameworks)
-	// 	controls[i].Control_details = frameworks
-	// 	frameworks = nil
-	// }
 	return controls
 
 }
