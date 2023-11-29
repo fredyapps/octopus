@@ -764,7 +764,7 @@ func Select_control_count(reference string) int {
 	}
 	defer db.Close()
 	// Query for a value based on a single row.
-	results, err := db.Query("SELECT COUNT(*) FROM scfcontrols JOIN scfcontrolDetails ON scfcontrols.uuid = scfcontrolDetails.control_uuid WHERE scfcontrolDetails.control_property='" + reference + "'")
+	results, err := db.Query("SELECT COUNT(*) FROM scfcontrols JOIN scfcontroldetails ON scfcontrols.uuid = scfcontroldetails.control_uuid WHERE scfcontroldetails.control_property='" + reference + "'")
 	var control_count int
 	if err != nil {
 		fmt.Println(err.Error())
