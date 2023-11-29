@@ -144,7 +144,7 @@ func Updating_description(c *fiber.Ctx) error {
 		//for i := 0; i < 2; i++ {
 		//fmt.Println(scfcontrol)
 
-		db.Exec("UPDATE SCFcontrols SET description = ?  WHERE  uuid = ?", fmt.Sprintf("%v", result[i]["Secure Controls Framework (SCF)\nControl Description"]), fmt.Sprintf("%v", result[i]["UUID"]))
+		db.Exec("UPDATE scfcontrols SET description = ?  WHERE  uuid = ?", fmt.Sprintf("%v", result[i]["Secure Controls Framework (SCF)\nControl Description"]), fmt.Sprintf("%v", result[i]["UUID"]))
 
 	}
 	defer db.Close()
