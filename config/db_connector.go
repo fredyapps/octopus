@@ -69,7 +69,7 @@ func Select_domains_of_selected_frameworks(frms []string) []models.SCFDomain {
 		fmt.Println(err.Error())
 	}
 
-	db.Table("SCFDomains").Distinct("SCFDomains.SCFDomain", "SCFDomains.SCFIdentifier").Joins("JOIN SCFcontrols ON SCFDomains.SCFDomain=SCFcontrols.scf_domain").Joins("JOIN SCFcontroldetails ON SCFcontrols.uuid=SCFcontroldetails.control_uuid").Where("SCFcontrolDetails.control_property IN ?", frms).Find(&domains)
+	db.Table("scfdomains").Distinct("scfdomains.SCFDomain", "scfdomains.SCFIdentifier").Joins("JOIN scfcontrols ON scfdomains.SCFDomain=scfcontrols.scf_domain").Joins("JOIN scfcontroldetails ON scfcontrols.uuid=scfcontroldetails.control_uuid").Where("scfcontrolDetails.control_property IN ?", frms).Find(&domains)
 
 	for key, domain := range domains {
 
@@ -725,7 +725,7 @@ func List_controls_from_library(company_id string) []models.SCFcontrol {
 func Select_control_join_details(search_word string) []models.SCFcontrol {
 
 	var controls []models.SCFcontrol
-	q := "SELECT DISTINCT scfcontrols.uuid, scfcontrols.scf_control, scfcontrols.scf_domain, scfcontrols.scf_ref, scfcontrols.control_question FROM scfcontrols INNER JOIN scfcontrolDetails ON scfcontrols.uuid = scfcontrolDetails.control_uuid WHERE scfcontrolDetails.control_property LIKE '%" + search_word + "%'"
+	q := "SELECT DISTINCT scfcontrols.uuid, scfcontrols.scf_control, scfcontrols.scf_domain, scfcontrols.scf_ref, scfcontrols.control_question FROM scfcontrols INNER JOIN scfcontroldetails ON scfcontrols.uuid = scfcontroldetails.control_uuid WHERE scfcontroldetails.control_property LIKE '%" + search_word + "%'"
 
 	db, err := sql.Open("mysql", dsn)
 
