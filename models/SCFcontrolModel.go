@@ -10,5 +10,6 @@ type SCFcontrol struct {
 	Control_question  string
 	Control_framework string
 	Mapping_values    string
+	Description       string
 	Control_details   interface{}
 }
