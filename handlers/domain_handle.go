@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -119,6 +120,37 @@ func TestingPortion2(c *fiber.Ctx) error {
 	return c.Status(201).JSON(nil)
 }
 
+func Updating_description(c *fiber.Ctx) error {
+
+	jsonFile, err := os.Open("SCF_data.json")
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	defer jsonFile.Close()
+	byteValue, _ := ioutil.ReadAll(jsonFile)
+	var result []map[string]interface{}
+
+	// Unmarshal or Decode the JSON to the interface.
+	json.Unmarshal([]byte(byteValue), &result)
+
+	db, err := sql.Open("mysql", "root:@tcp(127.0.0.1:3306)/octopus")
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	for i := 0; i < len(result); i++ {
+		//for i := 0; i < 2; i++ {
+		//fmt.Println(scfcontrol)
+
+		db.Exec("UPDATE SCFcontrols SET description = ?  WHERE  uuid = ?", fmt.Sprintf("%v", result[i]["Secure Controls Framework (SCF)\nControl Description"]), fmt.Sprintf("%v", result[i]["UUID"]))
+
+	}
+	defer db.Close()
+	return c.Status(201).JSON(nil)
+}
+
 func Add_BOG_Controls(c *fiber.Ctx) error {
 
 	jsonFile, err := os.Open("BOG_FRAMEWORKS.JSON")
@@ -218,25 +250,12 @@ func Add_BOG_Controls(c *fiber.Ctx) error {
 	return c.Status(201).JSON(nil)
 }
 
-// func InsertDomain(c *fiber.Ctx) error {
-// 	// Using var keyword
-// 	var dmn []*models.SCFDomain
-// 	_ = json.Unmarshal([]byte(c.Body()), &dmn)
-// 	// if err := c.BodyParser(dmn); err != nil {
-// 	// 	return err
-// 	// }
+func Update_single_control(c *fiber.Ctx) error {
 
-// 	fmt.Println(dmn)
-// 	config.Connect()
+	config.Update_control_with_description("85257ab3-b5c4-47da-a071-82c202b55e38", "this is a desc")
 
-// 	for index, element := range dmn {
-// 		config.Insert_domain(element)
-// 		fmt.Println(index)
-// 	}
-// 	//
-
-// 	return c.Status(201).JSON(dmn)
-// }
+	return c.Status(201).JSON("hhhhhh")
+}
 
 func PrintingSegment(c *fiber.Ctx) error {
 

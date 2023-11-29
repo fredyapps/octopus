@@ -46,6 +46,20 @@ func Connect() {
 
 }
 
+func Update_control_with_description(uuid string, descr string) {
+
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	defer db.Close()
+
+	updated, ok := db.Exec("UPDATE scfcontrols SET description = ?  WHERE  uuid = ?", descr, uuid)
+	fmt.Println(updated)
+	fmt.Println(ok)
+
+}
+
 func Select_domains_of_selected_frameworks(frms []string) []models.SCFDomain {
 
 	var domains []models.SCFDomain
@@ -73,7 +87,7 @@ func Select_frameworks() []models.Framework {
 
 	var frameworks []models.Framework
 
-	q := "SELECT  id_framework, description ,reference , name , version FROM `Frameworks`"
+	q := "SELECT  id_framework, description ,reference , name , version FROM `frameworks`"
 	db, err := sql.Open("mysql", dsn)
 
 	if err != nil {
@@ -109,7 +123,7 @@ func Insert_framework(frmk *models.Framework) {
 
 	//=========================================== |||||||||||||| ============================================
 	db, err := sql.Open("mysql", dsn)
-	query := "INSERT INTO `Frameworks` (`name`, `reference`, `version`,`description`) VALUES (?, ?, ?, ?, ?, ?)"
+	query := "INSERT INTO `frameworks` (`name`, `reference`, `version`,`description`) VALUES (?, ?, ?, ?, ?, ?)"
 
 	insertResult, err := db.ExecContext(context.Background(), query, frmk.Name, frmk.Reference, frmk.Version, frmk.Description)
 	fmt.Println("================ Error  connector line 88 =================")
@@ -171,7 +185,7 @@ func Insert_schema(fld models.Field) {
 
 	//=========================================== |||||||||||||| ============================================
 	db, err := sql.Open("mysql", dsn)
-	query := "INSERT INTO `JSON_schema_fields` (`segment`, `name`, `type`) VALUES (?, ?, ?)"
+	query := "INSERT INTO `json_schema_fields` (`segment`, `name`, `type`) VALUES (?, ?, ?)"
 
 	insertResult, err := db.ExecContext(context.Background(), query, fld.Segment, fld.Name, fld.Type)
 	fmt.Println("================ Error  connector line 88 =================")
@@ -190,7 +204,7 @@ func Insert_control(SCFctrl models.SCFcontrol) {
 
 	//=========================================== |||||||||||||| ============================================
 	db, err := sql.Open("mysql", dsn)
-	query := "INSERT INTO `SCFcontrols` (`uuid`, `scf_control`, `scf_domain`,`scf_ref`,`control_question`) VALUES (?, ?, ?, ?, ?)"
+	query := "INSERT INTO `scfcontrols` (`uuid`, `scf_control`, `scf_domain`,`scf_ref`,`control_question`) VALUES (?, ?, ?, ?, ?)"
 
 	insertResult, err := db.ExecContext(context.Background(), query, SCFctrl.Uuid, SCFctrl.Scf_control, SCFctrl.Scf_domain, SCFctrl.Scf_ref, SCFctrl.Control_question)
 	//fmt.Println("================ Error  connector line 88 =================")
@@ -209,7 +223,7 @@ func Insert_control_details(ctrlDet models.SCFcontrolDetail) {
 
 	//=========================================== |||||||||||||| ============================================
 	db, err := sql.Open("mysql", dsn)
-	query := "INSERT INTO `SCFcontrolDetails` (`control_uuid`, `control_property`, `control_property_value`) VALUES (?, ?, ?)"
+	query := "INSERT INTO `scfcontrolDetails` (`control_uuid`, `control_property`, `control_property_value`) VALUES (?, ?, ?)"
 
 	insertResult, err := db.ExecContext(context.Background(), query, ctrlDet.Control_uuid, ctrlDet.Control_property, ctrlDet.Control_property_value)
 	//fmt.Println("================ Error  connector line 88 =================")
@@ -228,7 +242,7 @@ func Insert_control_details3(ctrlDet models.SCFcontrolDetail) {
 
 	//=========================================== |||||||||||||| ============================================
 	db, err := sql.Open("mysql", dsn)
-	query := "INSERT INTO `SCFcontrolDetails3` (`control_uuid`, `control_property`, `control_property_value`) VALUES (?, ?, ?)"
+	query := "INSERT INTO `scfcontrolDetails3` (`control_uuid`, `control_property`, `control_property_value`) VALUES (?, ?, ?)"
 
 	insertResult, err := db.ExecContext(context.Background(), query, ctrlDet.Control_uuid, ctrlDet.Control_property, ctrlDet.Control_property_value)
 	//fmt.Println("================ Error  connector line 88 =================")
@@ -250,45 +264,9 @@ func Check_if_control_exist(control string) []string {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	db.Select("SCFcontrols.uuid").Table("SCFcontrols").Where("SCFcontrols.scf_control = ?", control).Find(&controls)
+	db.Select("scfcontrols.uuid").Table("SCFcontrols").Where("scfcontrols.scf_control = ?", control).Find(&controls)
 
 	return controls
-
-}
-
-func Select_tariff_plans() []models.TariffPlan {
-
-	var plans []models.TariffPlan
-
-	q := "SELECT  plan, reference  FROM `tariff_plans`"
-
-	db, err := sql.Open("mysql", dsn)
-	//db.Limit(3).Find(&plans)
-
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	defer db.Close()
-
-	results, err := db.Query(q)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-
-	for results.Next() {
-
-		var plan models.TariffPlan
-		err = results.Scan(&plan.Plan, &plan.Reference)
-		if err != nil {
-			panic(err.Error())
-		}
-		fmt.Println(plan)
-		plans = append(plans, plan)
-
-	}
-	defer results.Close()
-
-	return plans
 
 }
 
@@ -315,7 +293,7 @@ func Select_controls() []models.SCFcontrol {
 
 	var controls []models.SCFcontrol
 
-	q := "SELECT  uuid, scf_control ,scf_domain , scf_ref , control_question FROM `SCFcontrols`"
+	q := "SELECT  uuid, scf_control ,scf_domain , scf_ref , control_question FROM `scfcontrols`"
 
 	//
 	db, err := sql.Open("mysql", dsn)
@@ -350,7 +328,7 @@ func Select_controls_per_domain(domain string) []models.SCFcontrol {
 
 	var controls []models.SCFcontrol
 
-	q := "SELECT  uuid, scf_control ,scf_domain , scf_ref , control_question FROM `SCFcontrols` WHERE  scf_domain ='" + domain + "'"
+	q := "SELECT  uuid, scf_control ,scf_domain , scf_ref , control_question FROM `scfcontrols` WHERE  scf_domain ='" + domain + "'"
 	db, err := sql.Open("mysql", dsn)
 
 	if err != nil {
@@ -383,7 +361,7 @@ func Select_users_per_client(comp_id string) []models.OctopusUser {
 
 	var employees []models.OctopusUser
 
-	q := "SELECT  firstname, lastname ,email , department , position , user_role , on_leave  FROM `Users` WHERE  company_id ='" + comp_id + "'"
+	q := "SELECT  firstname, lastname ,email , department , position , user_role , on_leave  FROM `users` WHERE  company_id ='" + comp_id + "'"
 	db, err := sql.Open("mysql", dsn)
 
 	if err != nil {
@@ -417,7 +395,7 @@ func Select_users_per_client(comp_id string) []models.OctopusUser {
 func Select_control_details(uuid string) []models.SCFcontrolDetail {
 
 	var ctrl_details []models.SCFcontrolDetail
-	q := "SELECT control_uuid ,control_property , control_property_value  FROM `SCFcontrolDetails` WHERE  control_uuid ='" + uuid + "'"
+	q := "SELECT control_uuid ,control_property , control_property_value  FROM `scfcontrolDetails` WHERE  control_uuid ='" + uuid + "'"
 	db, err := sql.Open("mysql", dsn)
 
 	results, err := db.Query(q)
@@ -443,7 +421,7 @@ func Select_control_details(uuid string) []models.SCFcontrolDetail {
 func Select_control_details_with_filter(uuid string, word string) []models.SCFcontrolDetail {
 
 	var ctrl_details []models.SCFcontrolDetail
-	q := "SELECT control_uuid ,control_property , control_property_value  FROM `SCFcontrolDetails` WHERE  control_uuid ='" + uuid + "' AND control_property LIKE '%" + word + "%'"
+	q := "SELECT control_uuid ,control_property , control_property_value  FROM `scfcontrolDetails` WHERE  control_uuid ='" + uuid + "' AND control_property LIKE '%" + word + "%'"
 	db, err := sql.Open("mysql", dsn)
 
 	results, err := db.Query(q)
@@ -471,7 +449,7 @@ func Select_controls_with_details_per_domain(domain string, framework string) []
 	var controls []models.SCFcontrol
 
 	//q := "SELECT  uuid, scf_control ,scf_domain , scf_ref , control_question FROM `SCFcontrols` WHERE  scf_domain ='" + domain + "'"
-	q := "SELECT SCFcontrols.uuid, SCFcontrols.scf_control, SCFcontrols.scf_domain, SCFcontrols.scf_ref, SCFcontrols.control_question, SCFcontrolDetails.control_property,SCFcontrolDetails.control_property_value FROM SCFcontrols JOIN SCFcontrolDetails ON SCFcontrols.uuid = SCFcontrolDetails.control_uuid WHERE SCFcontrolDetails.control_property = '" + framework + "' AND SCFcontrols.scf_domain ='" + domain + "'"
+	q := "SELECT scfcontrols.uuid, scfcontrols.scf_control, scfcontrols.scf_domain, scfcontrols.scf_ref, scfcontrols.control_question, scfcontrolDetails.control_property,scfcontrolDetails.control_property_value FROM scfcontrols JOIN scfcontrolDetails ON scfcontrols.uuid = scfcontrolDetails.control_uuid WHERE scfcontrolDetails.control_property = '" + framework + "' AND scfcontrols.scf_domain ='" + domain + "'"
 	db, err := sql.Open("mysql", dsn)
 
 	if err != nil {
@@ -505,7 +483,7 @@ func Select_all_controls_per_framework(framework string) []models.SCFcontrol {
 
 	var controls []models.SCFcontrol
 
-	q := "SELECT SCFcontrols.uuid, SCFcontrols.scf_control, SCFcontrols.scf_domain,SCFcontrols.scf_ref,SCFcontrols.control_question,SCFcontrolDetails.control_property,SCFcontrolDetails.control_property_value FROM  SCFcontrols JOIN SCFcontrolDetails ON SCFcontrols.uuid = SCFcontrolDetails.control_uuid WHERE SCFcontrolDetails.control_property = '" + framework + "'"
+	q := "SELECT scfcontrols.uuid, scfcontrols.scf_control, scfcontrols.scf_domain,scfcontrols.scf_ref,scfcontrols.control_question,scfcontrolDetails.control_property,scfcontrolDetails.control_property_value FROM  scfcontrols JOIN scfcontrolDetails ON scfcontrols.uuid = scfcontrolDetails.control_uuid WHERE scfcontrolDetails.control_property = '" + framework + "'"
 	db, err := sql.Open("mysql", dsn)
 
 	if err != nil {
@@ -573,7 +551,7 @@ func Select_users_per_department(companyID string, department string) []models.O
 
 	var users []models.OctopusUser
 
-	q := "SELECT  firstname, lastname, email ,Department, position, user_role,on_leave FROM `Users` WHERE  company_id ='" + companyID + "' AND Department = '" + department + "'"
+	q := "SELECT  firstname, lastname, email ,Department, position, user_role,on_leave FROM `users` WHERE  company_id ='" + companyID + "' AND Department = '" + department + "'"
 	db, err := sql.Open("mysql", dsn)
 
 	if err != nil {
@@ -660,7 +638,7 @@ func Select_evidence_request_controls(reference string) []models.SCFcontrol {
 
 	var controls []models.SCFcontrol
 
-	q := "SELECT   SCFcontrols.uuid, SCFcontrols.scf_control ,SCFcontrols.scf_domain , SCFcontrols.scf_ref , SCFcontrols.control_question FROM `SCFcontrols` LEFT JOIN `deployedControls` ON deployedControls.control_uuid = SCFcontrols.uuid WHERE  deployedControls.evidenceReq_ref ='" + reference + "' AND deployedControls.control_uuid = SCFcontrols.uuid"
+	q := "SELECT   scfcontrols.uuid, scfcontrols.scf_control ,scfcontrols.scf_domain , scfcontrols.scf_ref , scfcontrols.control_question FROM `scfcontrols` LEFT JOIN `deployedControls` ON deployedControls.control_uuid = scfcontrols.uuid WHERE  deployedControls.evidenceReq_ref ='" + reference + "' AND deployedControls.control_uuid = scfcontrols.uuid"
 	db, err := sql.Open("mysql", dsn)
 
 	if err != nil {
@@ -731,7 +709,7 @@ func List_controls_from_library(company_id string) []models.SCFcontrol {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	db.Distinct("SCFcontrols.uuid").Select("SCFcontrols.uuid", "SCFcontrols.scf_control", "SCFcontrols.scf_domain", "SCFcontrols.scf_ref", "SCFcontrols.control_question").Table("SCFcontrols").Joins("JOIN controlLibrary ON SCFcontrols.uuid = controlLibrary.control_uuid").Where("controlLibrary.company_id = ?", company_id).Find(&controls)
+	db.Distinct("scfcontrols.uuid").Select("scfcontrols.uuid", "scfcontrols.scf_control", "scfcontrols.scf_domain", "scfcontrols.scf_ref", "scfcontrols.control_question").Table("scfcontrols").Joins("JOIN controlLibrary ON scfcontrols.uuid = controlLibrary.control_uuid").Where("controlLibrary.company_id = ?", company_id).Find(&controls)
 
 	// var frameworks []string
 	// for i := 0; i < len(controls); i++ {
@@ -747,7 +725,7 @@ func List_controls_from_library(company_id string) []models.SCFcontrol {
 func Select_control_join_details(search_word string) []models.SCFcontrol {
 
 	var controls []models.SCFcontrol
-	q := "SELECT DISTINCT SCFcontrols.uuid, SCFcontrols.scf_control, SCFcontrols.scf_domain, SCFcontrols.scf_ref, SCFcontrols.control_question FROM SCFcontrols INNER JOIN SCFcontrolDetails ON SCFcontrols.uuid = SCFcontrolDetails.control_uuid WHERE SCFcontrolDetails.control_property LIKE '%" + search_word + "%'"
+	q := "SELECT DISTINCT scfcontrols.uuid, scfcontrols.scf_control, scfcontrols.scf_domain, scfcontrols.scf_ref, scfcontrols.control_question FROM scfcontrols INNER JOIN scfcontrolDetails ON scfcontrols.uuid = scfcontrolDetails.control_uuid WHERE scfcontrolDetails.control_property LIKE '%" + search_word + "%'"
 
 	db, err := sql.Open("mysql", dsn)
 
@@ -786,7 +764,7 @@ func Select_control_count(reference string) int {
 	}
 	defer db.Close()
 	// Query for a value based on a single row.
-	results, err := db.Query("SELECT COUNT(*) FROM SCFcontrols JOIN SCFcontrolDetails ON SCFcontrols.uuid = SCFcontrolDetails.control_uuid WHERE SCFcontrolDetails.control_property='" + reference + "'")
+	results, err := db.Query("SELECT COUNT(*) FROM scfcontrols JOIN scfcontrolDetails ON scfcontrols.uuid = scfcontrolDetails.control_uuid WHERE scfcontrolDetails.control_property='" + reference + "'")
 	var control_count int
 	if err != nil {
 		fmt.Println(err.Error())
@@ -811,7 +789,7 @@ func Select_domains_count(reference string) int {
 	}
 	defer db.Close()
 	// Query for a value based on a single row.
-	results, err := db.Query("SELECT COUNT(DISTINCT scf_domain) FROM SCFcontrols JOIN SCFcontrolDetails ON SCFcontrols.uuid = SCFcontrolDetails.control_uuid WHERE SCFcontrolDetails.control_property='" + reference + "'")
+	results, err := db.Query("SELECT COUNT(DISTINCT scf_domain) FROM scfcontrols JOIN scfcontrolDetails ON scfcontrols.uuid = scfcontrolDetails.control_uuid WHERE scfcontrolDetails.control_property='" + reference + "'")
 	var domain_count int
 	if err != nil {
 		fmt.Println(err.Error())
@@ -835,7 +813,7 @@ func Select_controls_from_selected_frameworks(frms []string, domain string) []mo
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	db.Distinct("SCFcontrols.uuid").Select("SCFcontrols.uuid", "SCFcontrols.scf_control", "SCFcontrols.scf_domain", "SCFcontrols.scf_ref", "SCFcontrols.control_question").Table("SCFcontrols").Joins("JOIN SCFcontrolDetails ON SCFcontrols.uuid = SCFcontrolDetails.control_uuid").Where("SCFcontrolDetails.control_property IN ? AND SCFcontrols.scf_domain= ?", frms, domain).Find(&controls)
+	db.Distinct("scfcontrols.uuid").Select("scfcontrols.uuid", "scfcontrols.scf_control", "scfcontrols.scf_domain", "scfcontrols.scf_ref", "scfcontrols.control_question").Table("scfcontrols").Joins("JOIN scfcontrolDetails ON scfcontrols.uuid = scfcontrolDetails.control_uuid").Where("scfcontrolDetails.control_property IN ? AND scfcontrols.scf_domain= ?", frms, domain).Find(&controls)
 	fmt.Println("====== printing controls array size ============")
 	fmt.Println(len(controls))
 
@@ -843,7 +821,7 @@ func Select_controls_from_selected_frameworks(frms []string, domain string) []mo
 	var frameworks []string
 	for i := 0; i < len(controls); i++ {
 		fmt.Println(i)
-		db.Distinct("SCFcontrolDetails.control_property").Select("SCFcontrolDetails.control_property").Table("SCFcontrolDetails").Where("SCFcontrolDetails.control_property IN ?  AND  SCFcontrolDetails.control_uuid = ? ", frms, controls[i].Uuid).Find(&frameworks)
+		db.Distinct("scfcontrolDetails.control_property").Select("scfcontrolDetails.control_property").Table("scfcontrolDetails").Where("scfcontrolDetails.control_property IN ?  AND  scfcontrolDetails.control_uuid = ? ", frms, controls[i].Uuid).Find(&frameworks)
 		controls[i].Control_details = frameworks
 		frameworks = nil
 	}
