@@ -709,7 +709,7 @@ func List_controls_from_library(company_id string) []models.SCFcontrol {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	db.Distinct("scfcontrols.uuid").Select("scfcontrols.uuid", "scfcontrols.scf_control", "scfcontrols.scf_domain", "scfcontrols.scf_ref", "scfcontrols.control_question").Table("scfcontrols").Joins("JOIN controlLibrary ON scfcontrols.uuid = controllibrary.control_uuid").Where("controllibrary.company_id = ?", company_id).Find(&controls)
+	db.Distinct("scfcontrols.uuid").Select("scfcontrols.uuid", "scfcontrols.scf_control", "scfcontrols.scf_domain", "scfcontrols.scf_ref", "scfcontrols.control_question").Table("scfcontrols").Joins("JOIN controllibrary ON scfcontrols.uuid = controllibrary.control_uuid").Where("controllibrary.company_id = ?", company_id).Find(&controls)
 
 	// var frameworks []string
 	// for i := 0; i < len(controls); i++ {
