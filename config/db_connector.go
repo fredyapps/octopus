@@ -69,7 +69,7 @@ func Select_domains_of_selected_frameworks(frms []string) []models.SCFDomain {
 		fmt.Println(err.Error())
 	}
 
-	db.Table("SCFDomains").Distinct("SCFDomains.SCFDomain", "SCFDomains.SCFIdentifier").Joins("JOIN SCFcontrols ON SCFDomains.SCFDomain=SCFcontrols.scf_domain").Joins("JOIN SCFcontrolDetails ON SCFcontrols.uuid=SCFcontrolDetails.control_uuid").Where("SCFcontrolDetails.control_property IN ?", frms).Find(&domains)
+	db.Table("SCFDomains").Distinct("SCFDomains.SCFDomain", "SCFDomains.SCFIdentifier").Joins("JOIN SCFcontrols ON SCFDomains.SCFDomain=SCFcontrols.scf_domain").Joins("JOIN SCFcontroldetails ON SCFcontrols.uuid=SCFcontroldetails.control_uuid").Where("SCFcontrolDetails.control_property IN ?", frms).Find(&domains)
 
 	for key, domain := range domains {
 
@@ -395,7 +395,7 @@ func Select_users_per_client(comp_id string) []models.OctopusUser {
 func Select_control_details(uuid string) []models.SCFcontrolDetail {
 
 	var ctrl_details []models.SCFcontrolDetail
-	q := "SELECT control_uuid ,control_property , control_property_value  FROM `scfcontrolDetails` WHERE  control_uuid ='" + uuid + "'"
+	q := "SELECT control_uuid ,control_property , control_property_value  FROM `scfcontroldetails` WHERE  control_uuid ='" + uuid + "'"
 	db, err := sql.Open("mysql", dsn)
 
 	results, err := db.Query(q)
@@ -421,7 +421,7 @@ func Select_control_details(uuid string) []models.SCFcontrolDetail {
 func Select_control_details_with_filter(uuid string, word string) []models.SCFcontrolDetail {
 
 	var ctrl_details []models.SCFcontrolDetail
-	q := "SELECT control_uuid ,control_property , control_property_value  FROM `scfcontrolDetails` WHERE  control_uuid ='" + uuid + "' AND control_property LIKE '%" + word + "%'"
+	q := "SELECT control_uuid ,control_property , control_property_value  FROM `scfcontroldetails` WHERE  control_uuid ='" + uuid + "' AND control_property LIKE '%" + word + "%'"
 	db, err := sql.Open("mysql", dsn)
 
 	results, err := db.Query(q)
