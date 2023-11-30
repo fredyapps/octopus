@@ -75,6 +75,7 @@ func Select_domains_of_selected_frameworks(frms []string) []models.SCFDomain {
 
 		fmt.Println(key, " = ", domain)
 		domain.Controls = Select_controls_from_selected_frameworks(frms, domain.SCFDomain)
+
 		the_domains = append(the_domains, domain)
 
 	}
@@ -825,6 +826,9 @@ func Select_controls_from_selected_frameworks(frms []string, domain string) []mo
 		controls[i].Control_details = frameworks
 		frameworks = nil
 	}
+
+	fmt.Println("Printing lengh for " + domain)
+	fmt.Println(len(controls))
 	return controls
 
 }

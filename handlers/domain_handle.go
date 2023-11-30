@@ -11,7 +11,6 @@ import (
 	"reflect"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/google/uuid"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -151,7 +150,7 @@ func Updating_description(c *fiber.Ctx) error {
 	return c.Status(201).JSON(nil)
 }
 
-func Add_BOG_Controls(c *fiber.Ctx) error {
+func Update_BOG_Controls(c *fiber.Ctx) error {
 
 	jsonFile, err := os.Open("BOG_FRAMEWORKS.JSON")
 
@@ -178,74 +177,14 @@ func Add_BOG_Controls(c *fiber.Ctx) error {
 		//	contrs := config.Check_if_control_exist(fmt.Sprintf("%v", result[i]["SCF Control"]))
 		var controls []string
 
-		db.Select("SCFcontrols.uuid").Table("SCFcontrols").Where("SCFcontrols.scf_control = ? AND SCFcontrols.scf_ref = ?", fmt.Sprintf("%v", result[i]["SCF Control"]), fmt.Sprintf("%v", result[i]["SCF #"])).Find(&controls)
+		db.Select("scfcontrols.scf_ref").Table("scfcontrols").Where("scfcontrols.scf_control = ? AND scfcontrols.scf_ref = ?", fmt.Sprintf("%v", result[i]["SCF Control"]), fmt.Sprintf("%v", result[i]["SCF #"])).Find(&controls)
 		fmt.Println(controls)
 
-		if len(controls) == 0 {
-			var scfcontrol models.SCFcontrol
-			uuid := uuid.NewString()
-			scfcontrol.Uuid = uuid
-			scfcontrol.Scf_control = fmt.Sprintf("%v", result[i]["SCF Control"])
-			scfcontrol.Scf_domain = fmt.Sprintf("%v", result[i]["SCF Domain"])
-			scfcontrol.Control_question = fmt.Sprintf("%v", result[i]["SCF Control Question"])
-			scfcontrol.Scf_ref = fmt.Sprintf("%v", result[i]["SCF #"])
-			config.Insert_control(scfcontrol)
+		if len(controls) != 0 && result[i]["SCF #"] == controls[0] {
 
-			if result[i]["Bank of Ghana CISD"] != nil {
-				var scfcontroldetail models.SCFcontrolDetail
-				scfcontroldetail.Control_uuid = uuid
-				scfcontroldetail.Control_property = "Bank of Ghana CISD"
-				scfcontroldetail.Control_property_value = fmt.Sprintf("%v", result[i]["Bank of Ghana CISD"])
-				config.Insert_control_details(scfcontroldetail)
-			}
-			if result[i]["ISO\r\n27002\r\nv2022"] != nil {
-				var scfcontroldetail models.SCFcontrolDetail
-				scfcontroldetail.Control_uuid = uuid
-				scfcontroldetail.Control_property = "ISO\r\n27002\r\nv2022"
-				scfcontroldetail.Control_property_value = fmt.Sprintf("%v", result[i]["ISO\r\n27002\r\nv2022"])
-				config.Insert_control_details(scfcontroldetail)
-			}
-			if result[i]["CSA CII"] != nil {
-				var scfcontroldetail models.SCFcontrolDetail
-				scfcontroldetail.Control_uuid = uuid
-				scfcontroldetail.Control_property = "CSA CII"
-				scfcontroldetail.Control_property_value = fmt.Sprintf("%v", result[i]["CSA CII"])
-				config.Insert_control_details(scfcontroldetail)
-			}
-			if result[i]["Methods To Comply With SCF Controls"] != nil {
-				var scfcontroldetail models.SCFcontrolDetail
-				scfcontroldetail.Control_uuid = uuid
-				scfcontroldetail.Control_property = "Methods To Comply With SCF Controls"
-				scfcontroldetail.Control_property_value = fmt.Sprintf("%v", result[i]["Methods To Comply With SCF Controls"])
-				config.Insert_control_details3(scfcontroldetail)
-			}
-			if result[i]["Relative Control Weighting"] != nil {
-				var scfcontroldetail models.SCFcontrolDetail
-				scfcontroldetail.Control_uuid = uuid
-				scfcontroldetail.Control_property = "Relative Control Weighting"
-				scfcontroldetail.Control_property_value = fmt.Sprintf("%v", result[i]["Relative Control Weighting"])
-				config.Insert_control_details3(scfcontroldetail)
-			}
-
-		} else {
-
-			if result[i]["Bank of Ghana CISD"] != nil {
-				var scfcontroldetail models.SCFcontrolDetail
-				scfcontroldetail.Control_uuid = controls[0]
-				scfcontroldetail.Control_property = "Bank of Ghana CISD"
-				scfcontroldetail.Control_property_value = fmt.Sprintf("%v", result[i]["Bank of Ghana CISD"])
-				config.Insert_control_details(scfcontroldetail)
-			}
-
-			if result[i]["CSA CII"] != nil {
-				var scfcontroldetail models.SCFcontrolDetail
-				scfcontroldetail.Control_uuid = controls[0]
-				scfcontroldetail.Control_property = "CSA CII"
-				scfcontroldetail.Control_property_value = fmt.Sprintf("%v", result[i]["CSA CII"])
-				config.Insert_control_details(scfcontroldetail)
-			}
-
+			db.Exec("UPDATE scfcontrols SET description = ?  WHERE  scf_ref = ?", result[i]["Secure Controls Framework (SCF)\r\nControl Description"], controls[0])
 		}
+
 	}
 	return c.Status(201).JSON(nil)
 }
