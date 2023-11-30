@@ -15,6 +15,10 @@ import (
 	"gorm.io/gorm"
 )
 
+//var dsn string = "root:@tcp(127.0.0.1:3306)/octopus"
+
+var dsn string = "root:Mathapelo@2030@tcp(127.0.0.1:3306)/octopus"
+
 func convType(v interface{}) interface{} {
 
 	aaaa := v.([]interface{})
@@ -134,7 +138,7 @@ func Updating_description(c *fiber.Ctx) error {
 	// Unmarshal or Decode the JSON to the interface.
 	json.Unmarshal([]byte(byteValue), &result)
 
-	db, err := sql.Open("mysql", "root:@tcp(127.0.0.1:3306)/octopus")
+	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		fmt.Println(err.Error())
 	}
@@ -167,7 +171,7 @@ func Update_BOG_Controls(c *fiber.Ctx) error {
 	fmt.Println("====== printing BOG array size ============")
 	fmt.Println(len(result))
 	fmt.Println("====== done printing BOG array size ============")
-	var dsn string = "root:@tcp(127.0.0.1:3306)/octopus"
+
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		fmt.Println(err.Error())
